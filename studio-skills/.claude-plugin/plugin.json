@@ -1,0 +1,5 @@
+{
+  "name": "studio",
+  "version": "0.1.0",
+  "description": "Les skills du Studio des agents : montage vidéo (ffmpeg), sous-titres, retouche photo (Pillow), bannières, affiches, thèmes, pages et GIF animés."
+}
