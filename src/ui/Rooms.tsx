@@ -2,7 +2,7 @@
 // la fiche d'un agent (sa mission, chacune de ses actions, son rapport), le plan de Max et son
 // historique, l'équipe et ses outils, la machine, les rendus et l'aperçu des sites créés.
 import { useEffect, useMemo, useState } from 'react';
-import { ROLE_TOOLS, ROLES, TOOL_INFO } from '../../shared/activity.ts';
+import { ROLE_TOOLS, ROLES, TOOL_INFO, TYPE_LABEL, TYPE_ROLE } from '../../shared/activity.ts';
 import type { PlanItem, Role } from '../../shared/protocol.ts';
 import { jukebox, TRACKS } from '../audio/music.ts';
 import { sfx } from '../audio/sfx.ts';
@@ -59,13 +59,13 @@ function AgentRoom({ id }: { id: string }) {
   const role = ROLES[a.role];
   const working = a.status === 'working' || a.status === 'reporting';
   return (
-    <Shell title={<>{a.name}</>} sub={`${role.icon} ${role.label} · ${a.task}`}>
+    <Shell title={<>{a.name}</>} sub={`${(a.type && TYPE_LABEL[a.type]) || `${role.icon} ${role.label}`} · ${a.task}`}>
       <div className="agent-hero" style={{ ['--c' as string]: role.color }}>
         <Avatar role={a.role} size={72} />
         <div>
           <span className={`pill-status ${a.status}`}>{working ? (live?.seated ? 'Au travail' : 'En chemin') : a.status === 'done' ? 'A rendu son travail' : 'N’a pas pu finir'}</span>
           <p className="now">{working && a.act ? <><i>{ICON[a.act.kind]}</i>{a.act.label}</> : a.status === 'done' ? 'Son rapport est sur le bureau de Max.' : working ? 'Il s’installe à son poste…' : ''}</p>
-          <p className="small muted">Un vrai sous-agent Claude Code (« {role.type || 'renfort'} »), avec ses propres outils : {ROLE_TOOLS[a.role].join(', ') || 'ceux de Max'}.</p>
+          <p className="small muted">Un vrai sous-agent Claude Code (« {a.type || role.type || 'renfort'} »), avec ses propres outils : {ROLE_TOOLS[a.role].join(', ') || 'ceux de Max'}.</p>
         </div>
       </div>
       <section className="room-sec">
@@ -315,7 +315,7 @@ function TeamRoom({ role }: { role?: Role }) {
         <div className="roles">
           {roles.map((r) => (
             <div key={r} className={`role-card ${role === r ? 'focus' : ''}`} style={{ ['--c' as string]: ROLES[r].color }}>
-              <div className="role-head"><Avatar role={r} size={34} /><div><b>{ROLES[r].icon} {ROLES[r].label}</b><span>{r === 'chef' ? 'Max' : `agent « ${ROLES[r].type} »`} · cerveau : {r === 'chef' ? settings.chefModel || 'par défaut' : settings.teamModel === 'inherit' ? 'comme Max' : settings.teamModel}</span></div>{working(r) > 0 && <em>{working(r)} au travail</em>}</div>
+              <div className="role-head"><Avatar role={r} size={34} /><div><b>{ROLES[r].icon} {ROLES[r].label}</b><span>{r === 'chef' ? 'Max' : `${Object.keys(TYPE_ROLE).filter((t) => TYPE_ROLE[t] === r).length > 1 ? 'agents' : 'agent'} ${Object.keys(TYPE_ROLE).filter((t) => TYPE_ROLE[t] === r).map((t) => `« ${t} »`).join(' et ')}`} · cerveau : {r === 'chef' ? settings.chefModel || 'par défaut' : settings.teamModel === 'inherit' ? 'comme Max' : settings.teamModel}</span></div>{working(r) > 0 && <em>{working(r)} au travail</em>}</div>
               <p>{ROLES[r].what}</p>
               <div className="tools">{ROLE_TOOLS[r].map((t) => <span key={t} title={TOOL_INFO[t] ?? t}>{t}<small>{TOOL_INFO[t] ?? ''}</small></span>)}</div>
             </div>

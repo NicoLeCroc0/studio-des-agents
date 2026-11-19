@@ -2,7 +2,7 @@
 // les rendus (les fichiers produits) et le fil de ce qui se passe. Sans mission : comment ça marche.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
-import { ROLES } from '../../shared/activity.ts';
+import { ROLES, TYPE_LABEL } from '../../shared/activity.ts';
 import type { Role } from '../../shared/protocol.ts';
 import { sfx } from '../audio/sfx.ts';
 import { robotSprite } from '../engine/robots.ts';
@@ -52,9 +52,8 @@ function Welcome() {
       <section className="card">
         <h3>Comment ça marche</h3>
         <ol className="steps">
-          <li><b>Dépose tes vidéos et photos</b> dans le dossier « Médias » (bouton plus bas).</li>
-          <li><b>Tu dis à Max ce que tu veux</b>, au clavier ou à la voix.</li>
-          <li><b>Il fait le plan et appelle l’équipe</b> : monteurs, retoucheurs, designer, scénariste et inspiration, plusieurs en même temps.</li>
+          <li><b>Tu dis à Max ce que tu veux</b>, au clavier ou à la voix. Pour une vidéo ou des photos, dépose-les d’abord dans « Mes médias » (bouton plus bas).</li>
+          <li><b>Il fait le plan et appelle l’équipe</b> : chercheurs, développeur, rédacteur, analyste, monteurs vidéo, retoucheurs photo, designer et scénariste, plusieurs en même temps.</li>
           <li><b>Tu les regardes bosser</b>, en vrai : chaque bulle, c’est ce que l’agent fait à cet instant.</li>
           <li><b>Ils te rendent le travail</b> : les fichiers arrivent dans « Les rendus » et dans ton dossier.</li>
         </ol>
@@ -142,7 +141,7 @@ function AgentCard({ a, open, onToggle }: { a: AgentView; open: boolean; onToggl
       <button className="agent-head" onClick={onToggle}>
         <Avatar role={a.role} size={30} />
         <div className="agent-id">
-          <b>{a.name} <span>{role.icon} {role.label}</span></b>
+          <b>{a.name} <span>{(a.type && TYPE_LABEL[a.type]) || `${role.icon} ${role.label}`}</span></b>
           <span className="agent-task">{a.task}</span>
           <span className="agent-now">{working ? (a.act?.label ?? 'S’installe à son bureau…') : `${STATUS[a.status]}${a.leftAt ? ` · ${fmtDuration(a.leftAt - a.hiredAt)}` : ''}`}</span>
         </div>

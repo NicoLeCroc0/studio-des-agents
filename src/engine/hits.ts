@@ -11,7 +11,7 @@ export type Hit =
   | { kind: 'cat'; label: string }
   | { kind: 'object'; id: string; label: string; role?: Role };
 
-const ZONE_SIGN: Record<string, string> = { recherche: 'RECHERCHE', code: 'CODE', design: 'DESIGN', redaction: 'RÉDACTION', analyse: 'ANALYSE', chef: 'CHEF' };
+const ZONE_SIGN: Record<string, string> = { recherche: 'RECHERCHE', code: 'CODE · VIDÉO', design: 'DESIGN', redaction: 'RÉDAC · SCÉNAR', analyse: 'DATA · PHOTO', chef: 'CHEF' };
 
 function furnitureLabel(id: string, kind: string, role?: Role): string {
   switch (kind) {

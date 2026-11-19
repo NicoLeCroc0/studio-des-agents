@@ -14,6 +14,8 @@ export interface ActView { id: string; kind: ActKind; label: string; detail: str
 export interface AgentView {
   id: string;
   role: Role;
+  /** l'agent Claude Code (monteur, developpeur…) : deux métiers peuvent partager un coin */
+  type?: string;
   name: string;
   task: string;
   prompt: string;
@@ -270,7 +272,7 @@ export const useOffice = create<S>((set, get) => ({
         break;
       case 'hire': {
         const a: AgentView = {
-          id: ev.id, role: ev.role, name: ev.name, task: ev.task, prompt: ev.prompt, status: 'working', act: null, acts: [],
+          id: ev.id, role: ev.role, type: ev.type, name: ev.name, task: ev.task, prompt: ev.prompt, status: 'working', act: null, acts: [],
           say: '', sayAt: 0, report: '', hiredAt: at, tokens: 0, tools: 0,
         };
         const stats = { ...s.stats };

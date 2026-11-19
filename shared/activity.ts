@@ -14,11 +14,11 @@ export interface RoleInfo {
 
 export const ROLES: Record<Role, RoleInfo> = {
   chef: { label: 'Chef de projet', icon: '⭐', color: '#FF8A3D', type: '', what: 'Il reçoit ta demande, fait le plan, répartit le travail et assemble le rendu.' },
-  recherche: { label: 'Inspiration', icon: '🔎', color: '#4FB3FF', type: 'inspiration', what: 'Cherche les tendances, les références visuelles, les musiques et images libres de droits.' },
-  code: { label: 'Montage vidéo', icon: '🎬', color: '#3DDC97', type: 'monteur', what: 'Monte les vidéos : découpe, assemblage, sous-titres, musique, formats Shorts, Reels et TikTok.' },
-  design: { label: 'Design', icon: '🎨', color: '#FF6FA8', type: 'designer', what: 'Logos, bannières, visuels pour les réseaux, miniatures, chartes graphiques.' },
-  redaction: { label: 'Scénario', icon: '✍️', color: '#A98BFF', type: 'scenariste', what: 'Scripts vidéo, accroches, découpages, légendes et textes des visuels.' },
-  analyse: { label: 'Retouche photo', icon: '📸', color: '#FFC93D', type: 'retoucheur', what: 'Retouche les photos : recadrage, lumière, couleurs, détourage, traitement par lots.' },
+  recherche: { label: 'Recherche & inspiration', icon: '🔎', color: '#4FB3FF', type: 'chercheur', what: 'Cherche sur internet : concurrents, prix, avis, actualités, tendances, références, musiques et images libres de droits.' },
+  code: { label: 'Code & montage', icon: '💻', color: '#3DDC97', type: 'developpeur', what: 'Le développeur (sites, scripts, automatisations) et le monteur vidéo (découpe, sous-titres, Shorts, Reels).' },
+  design: { label: 'Design', icon: '🎨', color: '#FF6FA8', type: 'designer', what: 'Pages web, logos, bannières, visuels pour les réseaux, miniatures, chartes graphiques.' },
+  redaction: { label: 'Rédaction & scénario', icon: '✍️', color: '#A98BFF', type: 'redacteur', what: 'Le rédacteur (posts, e-mails, articles, rapports) et le scénariste (scripts vidéo, accroches, légendes).' },
+  analyse: { label: 'Analyse & retouche', icon: '📊', color: '#FFC93D', type: 'analyste', what: 'L’analyste (chiffres, tableaux, comparatifs) et le retoucheur photo (lumière, couleurs, recadrage, lots).' },
   renfort: { label: 'Renfort', icon: '🤖', color: '#9AA3B5', type: '', what: 'Un coup de main sur une tâche à part.' },
 };
 
@@ -33,6 +33,24 @@ export const ROLE_TOOLS: Record<Role, string[]> = {
   renfort: [],
 };
 
+/**
+ * Les agents Claude Code (subagent_type) et le coin du studio où ils s'installent.
+ * Un coin peut accueillir deux métiers : le pixel art garde ses 5 coins, l'équipe a 8 métiers.
+ */
+export const TYPE_ROLE: Record<string, Role> = {
+  chercheur: 'recherche',
+  developpeur: 'code', monteur: 'code',
+  designer: 'design',
+  redacteur: 'redaction', scenariste: 'redaction',
+  analyste: 'analyse', retoucheur: 'analyse',
+};
+
+/** Ce qu'affichent les deux métiers d'un même coin (le nom de l'agent Claude Code → son métier). */
+export const TYPE_LABEL: Record<string, string> = {
+  chercheur: '🔎 Recherche', developpeur: '💻 Code', monteur: '🎬 Montage vidéo', designer: '🎨 Design',
+  redacteur: '✍️ Rédaction', scenariste: '🎞️ Scénario', analyste: '📊 Analyse', retoucheur: '📸 Retouche photo',
+};
+
 /** Ce que veut dire chaque outil, en français (pour la fiche des métiers). */
 export const TOOL_INFO: Record<string, string> = {
   Agent: 'appelle un membre de l’équipe', TodoWrite: 'écrit et coche le plan', Read: 'lit un fichier', Write: 'crée un fichier',
@@ -42,18 +60,17 @@ export const TOOL_INFO: Record<string, string> = {
 
 /** Le métier d'un agent, d'après le type d'agent que le chef a appelé. */
 export function roleOfType(type: string): Role {
-  for (const [role, info] of Object.entries(ROLES) as [Role, RoleInfo][]) if (info.type && info.type === type) return role;
-  return 'renfort';
+  return TYPE_ROLE[type] ?? 'renfort';
 }
 
 /** Les prénoms des robots, par métier (jamais deux fois le même dans une mission). */
 export const NAMES: Record<Role, string[]> = {
   chef: ['Max'],
   recherche: ['Iris', 'Hugo', 'Léa', 'Malo', 'Zoé', 'Noé', 'Inès', 'Tom', 'Jade', 'Sacha', 'Lou', 'Nils'],
-  code: ['Agnès', 'Lumière', 'Méliès', 'Truffaut', 'Varda', 'Godard'],
+  code: ['Ada', 'Agnès', 'Linus', 'Méliès', 'Grace', 'Varda', 'Alan', 'Truffaut', 'Margaret', 'Godard'],
   design: ['Frida', 'Coco', 'Henri', 'Sonia', 'Saul', 'Paula'],
-  redaction: ['Colette', 'Victor', 'Simone', 'Jules', 'George'],
-  analyse: ['Nadar', 'Doisneau', 'Cartier', 'Brassaï', 'Vivian', 'Robert'],
+  redaction: ['Colette', 'Victor', 'Simone', 'Jules', 'George', 'Marguerite'],
+  analyse: ['Marie', 'Nadar', 'Blaise', 'Doisneau', 'Émilie', 'Brassaï', 'Gaspard', 'Vivian'],
   renfort: ['Bob', 'Lulu', 'Gaston', 'Nina', 'Momo', 'Kiki'],
 };
 

@@ -14,9 +14,10 @@ Lis ce fichier avant de modifier le code. Pour installer et lancer le studio, su
 
 ## Ce qui est propre au studio
 
-- **Les métiers** : les clés internes du bureau d'origine sont gardées (`recherche`, `code`, `design`, `redaction`, `analyse`) pour ne pas
-  toucher au moteur, mais elles affichent Inspiration, Montage vidéo, Design, Scénario, Retouche photo (`shared/activity.ts`).
-  Les agents Claude Code s'appellent `inspiration`, `monteur`, `designer`, `scenariste`, `retoucheur` (`server/team.ts`).
+- **Les métiers** : 8 agents Claude Code (`server/team.ts`) : ceux du bureau d'origine (`chercheur`, `developpeur`, `redacteur`,
+  `analyste`, `designer`) et ceux du studio (`monteur`, `retoucheur`, `scenariste`). Le moteur garde ses 5 coins (`recherche`, `code`,
+  `design`, `redaction`, `analyse`) : `TYPE_ROLE` (`shared/activity.ts`) dit dans quel coin s'installe chaque agent (deux métiers par
+  coin pour code/montage, rédaction/scénario, analyse/retouche), et `TYPE_LABEL` donne le métier affiché sur sa fiche.
 - **Les skills** : `studio-skills/` est un plugin Claude Code chargé avec `--plugin-dir` (il marche en `--restricted`). Les skills
   s'appellent `studio:<nom>`. L'outil `Skill` est dans les outils de la séance et de chaque métier.
 - **Les médias** : `~/Documents/Studio des agents/Médias` est passé avec `--add-dir` : l'équipe le lit, et écrit dans le dossier de la mission.

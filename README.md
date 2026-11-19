@@ -1,10 +1,12 @@
 # Le Studio des agents
 
-**Montage vidéo, retouche photo et design : tu dis ce que tu veux, une équipe d'agents IA se met au travail sous tes yeux.**
+**Recherche, code, rédaction, analyse, et aussi montage vidéo, retouche photo et design : tu dis ce que tu veux, une équipe
+d'agents IA se met au travail sous tes yeux.**
 
-Le Studio des agents transforme Claude Code en petit studio en pixel art. Max, le chef de projet, lit ta demande et appelle
-les bons spécialistes : monteurs vidéo, retoucheurs photo, designer, scénariste, chercheur d'inspiration. Il peut en lancer
-plusieurs en même temps (un monteur par Short, un retoucheur par lot de photos). Chaque robot est un vrai agent Claude Code,
+Le Studio des agents transforme Claude Code en petit bureau en pixel art. Max, le chef de projet, lit ta demande et appelle
+les bons spécialistes : chercheurs internet, développeur, rédacteur, analyste (les métiers du Bureau des agents d'origine),
+plus des monteurs vidéo, des retoucheurs photo, un designer et un scénariste. Il peut en lancer plusieurs en même temps (un
+chercheur par concurrent, un monteur par Short, un retoucheur par lot de photos). Chaque robot est un vrai agent Claude Code,
 qui travaille sur ton ordinateur, avec ton abonnement Claude, et qui applique les skills du studio.
 
 ---
@@ -63,6 +65,8 @@ Pour arrêter le studio : `Ctrl + C` dans le terminal.
    - « Retouche toutes mes photos et exporte-les en carré pour Instagram et en 1200×627 pour LinkedIn. »
    - « Crée 3 miniatures YouTube pour ma vidéo sur… avec mes couleurs. »
    - « Écris le script d'un Reel de 30 secondes sur… puis monte-le avec mes rushs. »
+   - « Analyse mes 5 concurrents, un chercheur par concurrent, et fais-moi un tableau comparatif. »
+   - « Fais ma veille de la semaine sur mon secteur, avec les sources. »
 
 Tout ce que l'équipe produit arrive dans `Documents/Studio des agents/Missions/` (et dans « Les rendus », dans le studio).
 **Tes originaux ne sont jamais modifiés.**
@@ -72,11 +76,16 @@ Tout ce que l'équipe produit arrive dans `Documents/Studio des agents/Missions/
 | Métier | Ce qu'il fait | Ses outils |
 |---|---|---|
 | ⭐ Max, chef de projet | Lit ta demande, fait le plan, lance l'équipe en parallèle, vérifie et livre | tous |
+| 🔎 Chercheur | Concurrents, prix, avis, actualités, tendances, sources ; inspiration, musiques et images libres de droits | internet |
+| 💻 Développeur | Sites web, scripts, petites applis, automatisations | code, commandes |
+| ✍️ Rédacteur | Posts, e-mails, articles, pages de vente, rapports | texte |
+| 📊 Analyste | Chiffres, tableaux comparatifs, calculs, fichiers de données | Python |
 | 🎬 Monteur vidéo | Découpe, assemblage, sous-titres, musique, fondus, 9:16, compression, GIF | ffmpeg, Python |
 | 📸 Retoucheur photo | Recadrage, formats réseaux, lumière, couleurs, détourage, filigrane, lots | Python + Pillow |
-| 🎨 Designer | Logos, bannières, miniatures, visuels réseaux, affiches, chartes | SVG/HTML → PNG |
-| ✍️ Scénariste | Scripts, accroches, découpage plan par plan, textes à l'écran, légendes | texte |
-| 🔎 Inspiration | Tendances, références, musiques et images libres de droits (avec licence) | internet |
+| 🎨 Designer | Pages web, logos, bannières, miniatures, visuels réseaux, affiches, chartes | HTML/SVG → PNG |
+| 🎞️ Scénariste | Scripts, accroches, découpage plan par plan, textes à l'écran, légendes | texte |
+
+Dans le bureau, deux métiers proches partagent un coin : Code · Vidéo, Rédac · Scénar, Data · Photo.
 
 ## Les skills du studio
 

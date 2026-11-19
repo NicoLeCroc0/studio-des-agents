@@ -65,7 +65,7 @@ export function TopBar() {
         <Logo />
         <div>
           <b>Le Studio des agents</b>
-          <span>{connection === 'demo' ? 'Démo' : 'vidéo · photo · design'}</span>
+          <span>{connection === 'demo' ? 'Démo' : 'recherche · vidéo · photo · design'}</span>
         </div>
       </div>
 

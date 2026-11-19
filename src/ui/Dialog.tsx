@@ -24,6 +24,14 @@ export const EXAMPLES: { label: string; prompt: string }[] = [
     prompt: 'Crée 3 propositions de miniature YouTube (1280×720) pour ma prochaine vidéo, avec un titre en gros, très lisible, et mes couleurs du règlement. Rends les PNG et dis-moi laquelle tu conseilles.',
   },
   {
+    label: '🔎 Analyse mes concurrents',
+    prompt: 'Analyse mes 5 principaux concurrents : pour chacun, son offre, ses prix et ce que ses clients en disent. Lance un chercheur par concurrent, puis rends-moi un tableau comparatif et 3 idées concrètes pour me démarquer.',
+  },
+  {
+    label: '📰 Ma veille de la semaine',
+    prompt: 'Fais ma veille de la semaine sur mon secteur : les 5 nouveautés qui comptent (outils, annonces, tendances), avec pour chacune une phrase sur ce que ça change pour moi et le lien de la source.',
+  },
+  {
     label: '✍️ Script de Reel',
     prompt: 'Écris le script d’un Reel de 30 secondes sur mon activité, avec une accroche forte, un découpage plan par plan et les textes à l’écran. Ajoute 3 idées de musiques libres de droits qui collent.',
   },
