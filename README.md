@@ -14,14 +14,14 @@ qui travaille sur ton ordinateur, avec ton abonnement Claude, et qui applique le
 ## L'installer (sans savoir coder)
 
 1. Il te faut [Claude Code](https://claude.com/claude-code), installé et connecté à ton compte Claude.
-2. Il te faut l'accès à ce dépôt privé sur GitHub (demande une invitation à la personne qui l'a créé, et accepte-la).
-3. Ouvre Claude Code et colle cette phrase :
+   Pas besoin de compte GitHub : le dépôt est public.
+2. Ouvre Claude Code et colle cette phrase :
 
    ```
    Installe et lance le Studio des agents : https://github.com/NicoLeCroc0/studio-des-agents
    ```
 
-4. Claude Code télécharge le studio, installe ce qui manque (Node.js, ffmpeg, Pillow) et le lance.
+3. Claude Code télécharge le studio, installe ce qui manque (Node.js, ffmpeg, Pillow) et le lance.
    Le studio s'ouvre dans ton navigateur, sur http://localhost:4850.
 
 Les fois suivantes, dis simplement à Claude Code « Relance le Studio des agents ».
@@ -33,16 +33,16 @@ Les fois suivantes, dis simplement à Claude Code « Relance le Studio des agent
 >    - **Python 3 et Pillow** (`python -c "import PIL"`, ou `python3` hors Windows). Pillow : `python -m pip install --user pillow`.
 >    - **Git** (`git --version`). Windows : `winget install Git.Git` ; macOS : `xcode-select --install`.
 >    Après une installation par winget, ouvre un nouveau terminal (ou recharge le PATH) pour que la commande soit trouvée.
-> 2. Le dépôt est **privé** : la personne doit être connectée à GitHub. Si `git clone` échoue faute d'accès, installe GitHub CLI
->    (`winget install GitHub.cli` ou `brew install gh`) et laisse la personne lancer elle-même `gh auth login` (ne saisis jamais
->    son mot de passe), puis `gh repo clone NicoLeCroc0/studio-des-agents`.
-> 3. Clone le dépôt dans le dossier de son choix (par défaut : son dossier personnel), puis `cd studio-des-agents` et `npm install`
+> 2. Clone le dépôt (public, aucune connexion GitHub nécessaire) dans le dossier de son choix (par défaut : son dossier personnel) :
+>    `git clone https://github.com/NicoLeCroc0/studio-des-agents.git`. Sous Windows, si un chemin est trop long, ajoute
+>    `-c core.longpaths=true`. Puis `cd studio-des-agents` et `npm install`
 >    (sous Windows PowerShell, si les scripts sont bloqués, utilise `npm.cmd`).
-> 4. Lance `npm start` **dans un terminal qui reste ouvert** (ou en arrière-plan) : c'est un petit serveur qui doit rester allumé.
+>    Sans Git, tu peux aussi télécharger le ZIP : https://github.com/NicoLeCroc0/studio-des-agents/archive/refs/heads/main.zip
+> 3. Lance `npm start` **dans un terminal qui reste ouvert** (ou en arrière-plan) : c'est un petit serveur qui doit rester allumé.
 >    Il ouvre le navigateur tout seul sur http://localhost:4850.
-> 5. Si le studio dit « Not logged in », Claude Code n'est pas connecté : fais lancer `claude` puis `/login` à la personne.
+> 4. Si le studio dit « Not logged in », Claude Code n'est pas connecté : fais lancer `claude` puis `/login` à la personne.
 >    Si `claude` n'est pas dans le PATH (Claude Code fourni par l'application de bureau), donne son chemin dans la variable `CLAUDE_BIN`.
-> 6. Dis à la personne que le studio est prêt, qu'il tourne tant que la commande tourne, qu'elle dépose ses fichiers avec le bouton
+> 5. Dis à la personne que le studio est prêt, qu'il tourne tant que la commande tourne, qu'elle dépose ses fichiers avec le bouton
 >    « 📁 Mes médias », et qu'elle peut écrire sa première mission à Max.
 
 ### À la main, si tu préfères
