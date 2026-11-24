@@ -96,6 +96,10 @@ export class ClaudeProcess {
     for (const d of o.addDirs ?? []) args.push('--add-dir', d);
     // pas de questions à choix multiples : le chef pose ses questions dans la conversation
     args.push('--disallowedTools', 'AskUserQuestion');
+    // Le studio n'a besoin ni des connecteurs de ton compte (Gmail, Canva, Notion…) ni de tes plugins personnels :
+    // chargés, ils ajoutent des centaines d'outils et peuvent faire déborder Max dès le premier message
+    // (« Prompt is too long »). Seuls les skills du studio (--plugin-dir) restent.
+    args.push('--strict-mcp-config', '--setting-sources', 'project,local');
     const env: NodeJS.ProcessEnv = {
       ...process.env,
       BUREAU_DES_AGENTS: '1',
@@ -105,6 +109,8 @@ export class ClaudeProcess {
       CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH: '1',
       // l'équipe travaille au premier plan : le chef attend les rapports, puis assemble le rendu
       CLAUDE_CODE_DISABLE_BACKGROUND_TASKS: '1',
+      // pas les connecteurs de ton compte claude.ai (voir plus haut)
+      ENABLE_CLAUDEAI_MCP_SERVERS: 'false',
     };
     if (!o.useApiKey) { delete env.ANTHROPIC_API_KEY; delete env.ANTHROPIC_AUTH_TOKEN; }
     const p = spawn(o.bin, args, { cwd: o.cwd, env, stdio: ['pipe', 'pipe', 'pipe'] });
@@ -229,6 +235,7 @@ export class Normalizer {
         this.typing.clear();
         const ok = !m.is_error && m.subtype === 'success';
         const text = String(m.result ?? '');
+        if (!ok && text) console.error(`  [Claude Code] ${text}`);
         this.onResult({ ok, text: ok ? text : frenchError(text) ?? text, ms: Number(m.duration_ms ?? 0), subtype: String(m.subtype ?? '') });
         break;
       }
@@ -311,6 +318,8 @@ export class Normalizer {
         this.typing.delete(who);
         // une erreur de Claude Code déguisée en réponse (abonnement, limite…) : on la dit en français
         const text = String(c.text);
+        // le message d'origine reste lisible dans le terminal du studio (pour comprendre une panne)
+        if (synthetic) console.error(`  [Claude Code] ${text}`);
         this.emit({ k: 'say', who, text: (synthetic && frenchError(text)) || text });
       } else if (c.type === 'tool_use') {
         const name = String(c.name ?? '');
