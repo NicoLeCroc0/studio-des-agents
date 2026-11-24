@@ -109,8 +109,10 @@ function drawAntenna(g: CanvasRenderingContext2D, L: Look, bob: number) {
 function drawAccessory(g: CanvasRenderingContext2D, L: Look, dir: Dir, bob: number) {
   const y = bob;
   switch (L.role) {
-    case 'design': { // un béret rose, penché
-      const c = ROLES.design.color;
+    case 'tournage':
+    case 'miniatures':
+    case 'design': { // un béret, penché (la couleur du métier)
+      const c = ROLES[L.role].color;
       rect(g, 5, 2 + y, 10, 2, c);
       rect(g, 4, 3 + y, 12, 1, darken(c, 0.15));
       rect(g, 6, 1 + y, 6, 1, lighten(c, 0.25));
@@ -125,6 +127,7 @@ function drawAccessory(g: CanvasRenderingContext2D, L: Look, dir: Dir, bob: numb
       break;
     }
     case 'son':
+    case 'voix':
     case 'montage': { // un casque audio
       const c = ROLES[L.role].color;
       rect(g, 4, 3 + y, 12, 1, '#2b2836');
@@ -140,6 +143,7 @@ function drawAccessory(g: CanvasRenderingContext2D, L: Look, dir: Dir, bob: numb
       break;
     }
     case 'code':
+    case 'stats':
     case 'qualite': { // des lunettes, sur la visière
       if (dir === 'down') {
         const f = '#f3f1f8';
@@ -256,7 +260,7 @@ function build(role: Role, pose: Pose, dir: Dir, frame: number, eyes: Eyes): HTM
   const walking = pose === 'walk';
   const f = frame % 4;
   const bob = walking ? (f === 1 || f === 3 ? -1 : 0) : pose === 'cheer' ? -(frame % 2) : 0;
-  const hatted = L.role === 'design' || L.role === 'recherche';
+  const hatted = L.role === 'design' || L.role === 'recherche' || L.role === 'tournage' || L.role === 'miniatures';
   if (dir === 'right') {
     drawBodySide(g, L, frame, walking, bob, pose);
     if (!hatted) drawAntenna(g, L, bob);

@@ -2,21 +2,28 @@
 // et s'il n'y a pas de mission en cours, une équipe de démonstration s'installe le temps de la visite.
 import { say, stopVoice, type Line } from '../audio/voice.ts';
 import { camera, world } from '../engine/instance.ts';
+import { H, ISLANDS, T, W } from '../engine/layout.ts';
 import { useOffice } from '../state/store.ts';
 
 // la voix enregistrée ne sert qu'aux phrases qui n'ont pas changé ; les autres se lisent dans la bulle
+const at = (id: string, zoom = 1.9): [number, number, number] => {
+  const i = ISLANDS.find((x) => x.id === id)!;
+  return [(i.x + i.w / 2) * T, (i.y + i.h / 2) * T, zoom];
+};
 const STEPS: { line?: Line; text: string; shot: [number, number, number] }[] = [
-  { text: 'Bienvenue dans le studio ! Moi, c’est Max, le cerveau. Chaque île a sa spécialité, et les ponts lumineux me relient à toute l’équipe.', shot: [224, 152, 1.7] },
-  { text: 'L’île de la Veille. Ils cherchent tes sujets sur internet, et ce qui marche en ce moment sur TikTok, les Reels et les Shorts.', shot: [72, 56, 1.9] },
-  { text: 'L’île des Scripts. Accroches, scripts plan par plan, titres et légendes.', shot: [224, 56, 1.9] },
-  { text: 'L’île du Son. La musique, ta voix bien propre, et les bruitages qui claquent.', shot: [376, 56, 1.9] },
-  { text: 'L’île du Montage. Le rythme, les sous-titres, et les effets visuels qui retiennent l’attention.', shot: [72, 152, 1.9] },
-  { text: 'L’île du Graphisme. Tes miniatures, tes couvertures et tes visuels.', shot: [376, 152, 1.9] },
-  { text: 'L’île des Réseaux. La publication, les hashtags, et les réponses à ta communauté.', shot: [376, 248, 1.9] },
-  { text: 'L’île du Code. Les automatisations, et les chiffres de tes vidéos.', shot: [72, 248, 1.9] },
-  { text: 'Juste à côté de moi, le contrôle qualité. Rien ne te revient sans être vérifié.', shot: [224, 176, 2.1] },
-  { line: 'visite-7', text: 'Sur ce tableau, j’écris le plan de chaque mission. Et chaque rapport finit sur mon bureau.', shot: [224, 110, 2.05] },
-  { line: 'visite-8', text: 'Toi, tu me dis ce que tu veux. Je monte l’équipe. Et tu regardes.', shot: [224, 152, 1] },
+  { text: 'Bienvenue dans le studio ! Moi, c’est Max, le cerveau. Douze îles tout autour, et des ponts lumineux qui me relient à toute l’équipe.', shot: at('cerveau', 1.5) },
+  { text: 'L’île des Stats. Elle lit les chiffres de tes vidéos et te dit quoi refaire, quoi arrêter.', shot: at('stats') },
+  { text: 'L’île de la Veille. Tes sujets, et ce qui marche en ce moment sur TikTok, les Reels et les Shorts.', shot: at('veille') },
+  { text: 'L’île des Scripts. Accroches, scripts plan par plan, titres et légendes.', shot: at('scripts') },
+  { text: 'L’île du Tournage. La liste des plans, la lumière, et ton plan de tournage au téléphone.', shot: at('tournage') },
+  { text: 'L’île de la Voix. Ton texte prêt à enregistrer, et tes vidéos traduites dans d’autres langues.', shot: at('voix') },
+  { text: 'L’île du Son. La musique, ta voix bien propre, et les bruitages qui claquent.', shot: at('son') },
+  { text: 'L’île du Montage. Le rythme, les sous-titres, et les effets visuels qui retiennent l’attention.', shot: at('montage') },
+  { text: 'L’île du Graphisme, et celle des Miniatures : plusieurs variantes, et les tests pour savoir laquelle gagne.', shot: [((ISLANDS.find((i) => i.id === 'miniatures')!.x + 7) * T), 21 * T, 1.6] },
+  { text: 'L’île des Réseaux. La publication, les hashtags, et les réponses à ta communauté. Et l’île du Code, pour tout automatiser.', shot: [5 * T, 18 * T, 1.5] },
+  { text: 'Dans mon cerveau, le laboratoire du contrôle qualité. Rien ne te revient sans être vérifié.', shot: [18 * T, 14 * T, 2] },
+  { line: 'visite-7', text: 'Sur ce tableau, j’écris le plan de chaque mission. Et chaque rapport finit sur mon bureau.', shot: [18 * T, 8 * T, 2.05] },
+  { line: 'visite-8', text: 'Toi, tu me dis ce que tu veux. Je monte l’équipe. Et tu regardes.', shot: [W / 2, H / 2, 1] },
 ];
 
 let run = 0;

@@ -513,7 +513,7 @@ export class World {
 
   /** Pour la visite guidée sans mission : un agent par coin, assis à son bureau, qui travaille. */
   demoTeam(on: boolean) {
-    const demo: [string, Role, string][] = [['demo-1', 'recherche', 'Iris'], ['demo-2', 'redaction', 'Colette'], ['demo-3', 'montage', 'Méliès'], ['demo-4', 'montage', 'Varda'], ['demo-5', 'son', 'Ravel'], ['demo-6', 'design', 'Frida'], ['demo-7', 'social', 'Mila'], ['demo-8', 'code', 'Ada'], ['demo-9', 'qualite', 'Vera']];
+    const demo: [string, Role, string][] = [['demo-1', 'recherche', 'Iris'], ['demo-2', 'redaction', 'Colette'], ['demo-3', 'montage', 'Méliès'], ['demo-4', 'montage', 'Godard'], ['demo-5', 'son', 'Ravel'], ['demo-6', 'design', 'Frida'], ['demo-7', 'social', 'Mila'], ['demo-8', 'code', 'Linus'], ['demo-9', 'qualite', 'Vera'], ['demo-10', 'tournage', 'Sofia'], ['demo-11', 'voix', 'Barbara'], ['demo-12', 'miniatures', 'Andy'], ['demo-13', 'stats', 'Marie']];
     if (on) {
       for (const [id, role, name] of demo) {
         if (this.actors.has(id)) continue;

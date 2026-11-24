@@ -4,7 +4,9 @@
 // Tout se dessine sur une toute petite image (352 × 256 pixels), agrandie sans flou : ça ne coûte presque rien.
 import type { ActKind } from '../../shared/protocol.ts';
 import { furniturePlacement } from './furniture.ts';
-import { BOARD, BRIDGES, CLOCK, FURNITURE, H, ISLANDS, islandOf, NEON, PTS, T, W, type Furn } from './layout.ts';
+import { BOARD, BRIDGES, CLOCK, DOOR, FURNITURE, H, ISLANDS, islandOf, NEON, PTS, T, W, type Furn } from './layout.ts';
+
+const DOOR_PX = { x: DOOR.x + DOOR.w / 2, y: DOOR.y + 4 };
 import { g2d, makeCanvas, P, rgba, rng, type G } from './pixels.ts';
 import { ANCHOR_X, ANCHOR_Y, robotSprite } from './robots.ts';
 import { drawRoom, neon, signs, type TimeOfDay } from './room.ts';
@@ -34,6 +36,17 @@ export class Renderer {
   private placed: Placed[] = FURNITURE.map((f) => { const p = furniturePlacement(f); return { f, c: p.s.c, x: p.x, y: p.y, sortY: p.sortY }; });
   /** les reflets d'étoiles (la nuit) et de soleil (le jour) sur la mer */
   private stars: { x: number; y: number; p: number }[] = [];
+  /** le halo rose du cerveau (préparé une fois : un dégradé coûte cher à chaque image) */
+  private halo = (() => {
+    const c = makeCanvas(180, 180);
+    const hg = g2d(c);
+    const grd = hg.createRadialGradient(90, 90, 0, 90, 90, 90);
+    grd.addColorStop(0, rgba('#ff9ed0', 0.16));
+    grd.addColorStop(1, rgba('#ff9ed0', 0));
+    hg.fillStyle = grd;
+    hg.fillRect(0, 0, 180, 180);
+    return c;
+  })();
 
   constructor() {
     const r = rng(7);
@@ -118,7 +131,8 @@ export class Renderer {
           }
           break;
         }
-        case 'design': {
+        case 'design':
+        case 'miniatures': {
           const cols = ['#ff6fa8', '#ffd166', '#4fb3ff', '#a98bff', P.orange];
           for (let i = 0; i < 11; i++) {
             g.fillStyle = cols[(i + Math.floor(t * (on ? 6 : 1))) % cols.length];
@@ -127,6 +141,7 @@ export class Renderer {
           break;
         }
         case 'son':
+        case 'stats':
         case 'qualite': {
           g.fillStyle = '#141a2c';
           g.fillRect(p.x + 23, p.y + 2, 7, 6);
@@ -297,15 +312,13 @@ export class Renderer {
         g.globalAlpha = 1;
       }
     });
-    // le cerveau respire doucement : un halo qui pulse (plus fort quand l'équipe travaille)
+    // le cerveau respire doucement : un halo qui pulse (plus fort quand l'équipe travaille), dessiné une fois puis recopié
     const pulse = (Math.sin(t * (busy.size ? 3 : 1.2)) + 1) / 2;
     const c = PTS.center;
-    const grd = g.createRadialGradient(c.x, c.y, 0, c.x, c.y, 70);
-    grd.addColorStop(0, rgba('#ff9ed0', 0.05 + pulse * (busy.size ? 0.12 : 0.05)));
-    grd.addColorStop(1, rgba('#ff9ed0', 0));
     g.globalCompositeOperation = 'lighter';
-    g.fillStyle = grd;
-    g.fillRect(c.x - 70, c.y - 70, 140, 140);
+    g.globalAlpha = 0.25 + pulse * (busy.size ? 0.75 : 0.3);
+    g.drawImage(this.halo, c.x - 90, c.y - 90);
+    g.globalAlpha = 1;
     g.globalCompositeOperation = 'source-over';
   }
 
@@ -330,10 +343,8 @@ export class Renderer {
     add(NEON.x + 12, NEON.y + 12, 52, neonCol, 0.75 * flick);
     // la lune (ou le soleil couchant) sur la mer, et les ponts-neurones qui luisent
     add(W * 0.8, H * 0.1, 120, night ? '#7080d0' : '#ff9a6a', night ? 0.3 : 0.45);
-    for (const b of BRIDGES) {
-      const [bx, by] = b.tiles[0];
-      add(bx * T + 8, by * T + 8, 22, b.b === 'mer' ? '#ffe2b8' : '#9a7bff', 0.35);
-    }
+    // le ponton du port
+    add(DOOR_PX.x, DOOR_PX.y, 30, '#ffe2b8', 0.4);
     // le tableau du plan, éclairé
     add(BOARD.x + BOARD.w / 2, BOARD.y + 20, 52, '#fff6e8', night ? 0.28 : 0.22);
     // la lampe du chef et le liseré orange de son bureau

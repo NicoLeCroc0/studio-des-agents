@@ -3,9 +3,10 @@
 **Un archipel d'agents IA pour tes vidéos YouTube, Shorts, Reels et TikTok : tu dis ce que tu veux, Max (le cerveau)
 envoie le travail sur les bonnes îles, le contrôle qualité vérifie tout, et tu récupères le résultat.**
 
-Le Studio des agents transforme Claude Code en archipel en pixel art. Au centre, l'île cerveau de Max, le chef de projet.
-Autour, une île par spécialité, reliées au cerveau par des ponts lumineux comme des neurones : la Veille, les Scripts, le
-Montage, le Son, le Graphisme, les Réseaux et le Code. Max peut lancer plusieurs agents en même temps (un chasseur de
+Le Studio des agents transforme Claude Code en archipel en pixel art. Au centre, le grand cerveau de Max, le chef de projet,
+et son laboratoire du contrôle qualité. Autour, une couronne de douze îles reliées au cerveau par des ponts lumineux comme
+des neurones : les Stats, la Veille, les Scripts, le Tournage, la Voix, le Son, le Montage, le Graphisme, les Miniatures,
+les Réseaux, le Code, et le port où arrive l'équipe. Max peut lancer plusieurs agents en même temps (un chasseur de
 tendances par réseau, un monteur par Short, l'ingé son et le motion designer en parallèle). Chaque robot est un vrai agent
 Claude Code, qui travaille sur ton ordinateur, avec ton abonnement Claude, et qui applique les skills du studio.
 
@@ -92,11 +93,15 @@ Tout ce que l'équipe produit arrive dans `Documents/Studio des agents/Missions/
 | 🧠 Le cerveau | ✅ Vérificateur | Contrôle chaque livrable avant qu'il te soit rendu : formats, durées, volume, fautes, respect de ta demande | ffprobe, Python |
 | 🔎 Veille | Chercheur, chasseur de tendances | Sujets fiables et sourcés ; ce qui marche en ce moment sur TikTok, Reels et Shorts | internet |
 | ✍️ Scripts | Scénariste, rédacteur | Accroches, scripts plan par plan, titres, légendes, descriptions | texte, internet |
+| 🎥 Tournage | Réalisateur, régisseur | Liste des plans, cadrage, lumière, plans de coupe ; plan de tournage au téléphone, check-list | texte, internet |
+| 🎙️ Voix | Directeur de voix, traducteur | Texte annoté prêt à enregistrer, vérification des prises ; sous-titres et versions en d'autres langues | ffmpeg, texte |
 | 🎬 Montage | Monteur, motion designer | Découpe, rythme, sous-titres, 9:16 ; zooms punch, flashs, glitch, titres animés, transitions | ffmpeg, Python |
 | 🎧 Son | Ingé son, bruiteur | Voix propre, musique libre de droits, mixage, -14 LUFS ; whoosh, pop, impacts, risers | ffmpeg, internet |
 | 🎨 Graphisme | Designer, retoucheur | Miniatures, couvertures, visuels, chartes ; retouche photo | HTML/SVG → PNG, Pillow |
+| 🖼️ Miniatures | Miniaturiste, testeur A/B | 3 variantes de miniature et de titre ; plan de test et lecture des résultats | HTML/SVG → PNG, Pillow |
 | 📱 Réseaux | Social media manager, community manager | Fiches de publication, hashtags, calendrier ; réponses aux commentaires, FAQ | texte, internet |
-| 💻 Code | Développeur, analyste | Automatisations, scripts ; statistiques de tes vidéos | code, Python |
+| 📊 Stats | Analyste, stratège de croissance | Les chiffres de tes vidéos (exports YouTube, TikTok, Instagram) ; quoi refaire, arrêter, tester | Python, internet |
+| 💻 Code | Développeur, automatiseur | Sites, scripts, petites applis ; traitements par lots, conversions, rangement | code, Python |
 
 Le studio **prépare** tes publications ; c'est toujours **toi** qui publies.
 
@@ -106,7 +111,7 @@ Ils sont dans le dossier [`studio-skills/`](studio-skills/) et se chargent tout 
 
 - Écrits pour le studio (recettes ffmpeg et Pillow qui marchent sous Windows, macOS et Linux) : `veille-tendances`, `script-viral`,
   `montage-video`, `sous-titres`, `motion-effets`, `sound-design`, `sfx-bruitages`, `retouche-photo`, `social-media`,
-  `community-management`, `controle-qualite`.
+  `community-management`, `controle-qualite`, `stats-croissance`, `miniatures-ab`, `voix-doublage`, `tournage`.
 - `banner-design`, `canvas-design`, `theme-factory`, `frontend-design`, `slack-gif-creator` : skills partagés sous licence libre.
 
 Origine et licences : [`studio-skills/NOTICE.md`](studio-skills/NOTICE.md). Pour ajouter un skill : un dossier `studio-skills/skills/<nom>/SKILL.md`,

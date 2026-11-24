@@ -6,7 +6,7 @@
  * Les îles du studio (une île = une spécialité). « chef » = l'île cerveau de Max, l'agent principal,
  * celui à qui tu parles. « qualite » = le contrôle qualité, sur l'île cerveau, à côté de Max.
  */
-export type Role = 'chef' | 'recherche' | 'redaction' | 'montage' | 'son' | 'design' | 'social' | 'code' | 'qualite' | 'renfort';
+export type Role = 'chef' | 'recherche' | 'redaction' | 'tournage' | 'voix' | 'montage' | 'son' | 'design' | 'miniatures' | 'social' | 'stats' | 'code' | 'qualite' | 'renfort';
 
 /** Ce que fait un agent à un instant : sert à l'animation, à l'icône et à la bulle. */
 export type ActKind = 'search' | 'web' | 'read' | 'write' | 'edit' | 'bash' | 'plan' | 'skill' | 'mcp' | 'other';

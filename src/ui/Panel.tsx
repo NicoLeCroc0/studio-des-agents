@@ -55,7 +55,7 @@ function Welcome() {
         <h3>Comment ça marche</h3>
         <ol className="steps">
           <li><b>Tu dis à Max ce que tu veux</b>, au clavier ou à la voix. Pour une vidéo ou des photos, dépose-les d’abord dans « Mes médias » (bouton plus bas).</li>
-          <li><b>Il fait le plan et envoie le travail sur les îles</b> : veille, scripts, montage, son, graphisme, réseaux, code. Plusieurs agents en même temps.</li>
+          <li><b>Il fait le plan et envoie le travail sur les îles</b> : stats, veille, scripts, tournage, voix, montage, son, graphisme, miniatures, réseaux, code. Plusieurs agents en même temps.</li>
           <li><b>Le contrôle qualité vérifie tout</b> avant que Max te le rende.</li>
           <li><b>Tu les regardes bosser</b>, en vrai : chaque bulle, c’est ce que l’agent fait à cet instant.</li>
           <li><b>Ils te rendent le travail</b> : les fichiers arrivent dans « Les rendus ». Tu peux demander des retouches, et dire « je valide » : Max le range dans ta Mémoire pour la prochaine fois.</li>

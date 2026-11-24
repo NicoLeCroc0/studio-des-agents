@@ -24,8 +24,16 @@ export const EXAMPLES: { label: string; prompt: string }[] = [
     prompt: 'Fais la veille de ma niche : ce qui marche en ce moment sur TikTok, les Reels et les Shorts (sujets, formats, accroches, sons). Lance un chasseur de tendances par réseau, puis rends-moi un top 10 d’idées de vidéos classées par potentiel, avec les liens d’exemples.',
   },
   {
-    label: '🎨 Miniature YouTube',
-    prompt: 'Crée 3 propositions de miniature YouTube (1280×720) pour ma prochaine vidéo, avec un titre en gros, très lisible, et les couleurs de ma charte. Rends les PNG et dis-moi laquelle tu conseilles.',
+    label: '🖼️ Miniatures + test A/B',
+    prompt: 'Crée 3 miniatures YouTube vraiment différentes (1280×720) pour ma prochaine vidéo, chacune avec son titre, aux couleurs de ma charte, puis prépare le plan de test A/B pour savoir laquelle gagne.',
+  },
+  {
+    label: '🎥 Prépare mon tournage',
+    prompt: 'J’ai un script dans ma mémoire (le dernier validé) : prépare mon tournage au téléphone. Liste des plans avec cadrage et lumière, plans de coupe, texte annoté pour la voix, et un plan de tournage dans l’ordre le plus rapide.',
+  },
+  {
+    label: '📊 Analyse mes stats',
+    prompt: 'J’ai déposé l’export de mes statistiques dans mes médias : analyse-les, dis-moi ce qui marche et ce qui rate, et fais-moi un plan de croissance pour le mois avec 3 choses à tester.',
   },
   {
     label: '🎧 Son pro + SFX',

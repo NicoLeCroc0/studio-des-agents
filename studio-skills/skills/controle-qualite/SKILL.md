@@ -61,4 +61,4 @@ python3 -c "from PIL import Image; import sys; [print(f, Image.open(f).size, Ima
 
 Verdict : À CORRIGER (2 corrections)
 ```
-Une correction = **quoi**, **où** (fichier et temps), **par qui** (monteur, motion, ingeson, bruiteur, designer, retoucheur, scenariste, redacteur, socialmedia, community, developpeur). Termine toujours par « Verdict : VALIDÉ » ou « Verdict : À CORRIGER ».
+Une correction = **quoi**, **où** (fichier et temps), **par qui** (monteur, motion, ingeson, bruiteur, designer, retoucheur, miniaturiste, scenariste, redacteur, directeurvoix, traducteur, realisateur, regisseur, socialmedia, community, analyste, croissance, developpeur, automatiseur). Termine toujours par « Verdict : VALIDÉ » ou « Verdict : À CORRIGER ».

@@ -100,8 +100,7 @@ function island(g: G, isl: Island, tod: TimeOfDay) {
       if (r() < 0.12) px(g, gx, gy - 1, r() < 0.5 ? '#ffe07a' : '#ff9ec7');
     }
     // un sentier clair le long de la colonne de passage
-    const lane = isl.x === 1 ? 7 : isl.x === 10 ? 10 : 20;
-    rect(g, lane * T + 4, y + 1, 8, h - 2, mix(lc.top, sand, 0.45));
+    rect(g, isl.lane * T + 4, y + 1, 8, h - 2, mix(lc.top, sand, 0.45));
   }
 }
 
@@ -239,10 +238,11 @@ export function drawRoom(tod: TimeOfDay): HTMLCanvasElement {
   sea(g, tod);
   for (const isl of ISLANDS) island(g, isl, tod);
   bridges(g, tod);
-  // des palmiers aux coins des îles (pas sur le cerveau ni sur le port)
+  // des palmiers sur le bord extérieur de la couronne
   for (const isl of ISLANDS) {
     if (isl.role === 'chef' || isl.role === 'port') continue;
-    const left = isl.x === 1;
+    const left = isl.x * T < W / 2;
+    if (isl.x !== 1 && (isl.x + isl.w) * T < W - T * 2) continue;
     palm(g, left ? isl.x * T - 2 : (isl.x + isl.w) * T + 1, (isl.y + isl.h) * T + 4, tod, left);
   }
   whiteboard(g);

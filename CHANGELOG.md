@@ -4,12 +4,14 @@
 
 L'archipel.
 
-- Le bureau devient un archipel : une île par spécialité (Veille, Scripts, Montage, Son, Graphisme, Réseaux, Code), reliées
-  à l'île cerveau de Max par des ponts lumineux où courent des influx (ils s'allument quand une île travaille).
-- 15 agents : chasseur de tendances, motion designer, ingé son, bruiteur, social media manager, community manager et
+- Le bureau devient un archipel : une couronne de douze îles (Stats, Veille, Scripts, Tournage, Voix, Son, Montage,
+  Graphisme, Miniatures, Réseaux, Code et le port) autour du grand cerveau de Max, reliées par des ponts lumineux où courent
+  des influx (ils s'allument quand une île travaille).
+- 23 agents : chasseur de tendances, réalisateur, régisseur, directeur de voix, traducteur, motion designer, ingé son,
+  bruiteur, miniaturiste, testeur A/B, social media manager, community manager, stratège de croissance, automatiseur et
   vérificateur (contrôle qualité) rejoignent l'équipe. Max fait toujours vérifier le travail avant de le rendre.
-- 8 nouveaux skills : veille-tendances, script-viral, motion-effets, sound-design, sfx-bruitages, social-media,
-  community-management, controle-qualite (recettes ffmpeg testées).
+- 12 nouveaux skills : veille-tendances, script-viral, tournage, voix-doublage, motion-effets, sound-design, sfx-bruitages,
+  miniatures-ab, social-media, community-management, stats-croissance, controle-qualite (recettes ffmpeg testées).
 - La Mémoire du studio : ta charte et tout ce que tu valides (scripts, recettes, visuels), réutilisés à chaque mission.
 - Reprendre une ancienne mission pour demander des retouches.
 - Accès depuis le téléphone ou un autre ordinateur : Tailscale + mot de passe, envoi de fichiers, lecture et téléchargement

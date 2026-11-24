@@ -77,7 +77,7 @@ export function Office() {
   }, [vertical]);
 
   // La boucle d'animation : 24 images par seconde quand ça bouge, 8 au repos, rien quand l'onglet est caché.
-  // Le studio est dessiné en tout petit (448 × 304) : des pixels nets à n'importe quelle taille.
+  // Le studio est dessiné en tout petit (576 × 400) : des pixels nets à n'importe quelle taille.
   useEffect(() => {
     const vis = canvas.current!;
     const vg = vis.getContext('2d')!;

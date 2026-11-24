@@ -170,9 +170,25 @@ function deskSprite(role: Role, seed: number): Sprite {
       mug(g, 24, 11, ROLES.social.color);
       break;
     case 'qualite':
+    case 'stats':
       laptop(g, 9, 8);
       dashboard(g, 22, 1);
       calculator(g, 2, 9);
+      break;
+    case 'miniatures':
+      tablet(g, 9, 11);
+      swatches(g, 23, 10);
+      cactus(g, 2, 5);
+      break;
+    case 'tournage':
+      papers(g, 2, 10, 3);
+      laptop(g, 10, 8);
+      globe(g, 24, 4);
+      break;
+    case 'voix':
+      laptop(g, 9, 8);
+      mug(g, 2, 11, ROLES.voix.color);
+      papers(g, 23, 11);
       break;
     default:
       laptop(g, 10, 8);

@@ -16,11 +16,15 @@ export const ROLES: Record<Role, RoleInfo> = {
   chef: { label: 'Le cerveau (Max)', icon: '🧠', color: '#FF8A3D', type: '', what: 'Max, le chef de projet : il reçoit ta demande, fait le plan, envoie le travail sur les bonnes îles et assemble le rendu.' },
   recherche: { label: 'Île de la Veille', icon: '🔎', color: '#4FB3FF', type: 'chercheur', what: 'Le chercheur (sujets, faits, sources) et le chasseur de tendances (ce qui marche en ce moment sur TikTok, Reels et Shorts).' },
   redaction: { label: 'Île des Scripts', icon: '✍️', color: '#A98BFF', type: 'scenariste', what: 'Le scénariste (scripts, accroches, découpage plan par plan) et le rédacteur (légendes, textes, articles).' },
+  tournage: { label: 'Île du Tournage', icon: '🎥', color: '#FF9F43', type: 'realisateur', what: 'Le réalisateur (liste des plans, cadrage, lumière, décor) et le régisseur (plan de tournage minute par minute, matériel, check-list).' },
+  voix: { label: 'Île de la Voix', icon: '🎙️', color: '#E77CFF', type: 'directeurvoix', what: 'Le directeur de voix (texte prêt à enregistrer, rythme, intonations) et le traducteur (sous-titres et versions en anglais, espagnol…).' },
   montage: { label: 'Île du Montage', icon: '🎬', color: '#3DDC97', type: 'monteur', what: 'Le monteur (découpe, rythme, sous-titres, formats 9:16) et le motion designer (effets visuels qui claquent, titres animés, transitions).' },
   son: { label: 'Île du Son', icon: '🎧', color: '#FF5FA2', type: 'ingeson', what: 'L’ingé son (musique, voix, mixage, volume) et le bruiteur (SFX : whoosh, pop, impacts, placés sur les coupes).' },
   design: { label: 'Île du Graphisme', icon: '🎨', color: '#FFC93D', type: 'designer', what: 'Le designer (miniatures, visuels, titres, chartes) et le retoucheur photo (lumière, couleurs, détourage).' },
+  miniatures: { label: 'Île des Miniatures', icon: '🖼️', color: '#FFE45C', type: 'miniaturiste', what: 'Le miniaturiste (plusieurs variantes de chaque miniature et titre) et le testeur A/B (quoi tester, dans quel ordre, et comment lire les résultats).' },
   social: { label: 'Île des Réseaux', icon: '📱', color: '#36D1C4', type: 'socialmedia', what: 'Le social media manager (publication, calendrier, hashtags, SEO) et le community manager (réponses aux commentaires, messages, ton).' },
-  code: { label: 'Île du Code', icon: '💻', color: '#7C9CFF', type: 'developpeur', what: 'Le développeur (sites, scripts, automatisations) et l’analyste (chiffres, statistiques de tes vidéos, tableaux).' },
+  stats: { label: 'Île des Stats', icon: '📊', color: '#5CE1E6', type: 'analyste', what: 'L’analyste (les statistiques de tes vidéos TikTok, YouTube, Instagram) et le stratège de croissance (ce qui marche, ce qu’il faut refaire, tes objectifs).' },
+  code: { label: 'Île du Code', icon: '💻', color: '#7C9CFF', type: 'developpeur', what: 'Le développeur (sites, scripts, petites applis) et l’automatiseur (traitements par lots, rangement, conversions).' },
   qualite: { label: 'Contrôle qualité', icon: '✅', color: '#FF7A5C', type: 'verificateur', what: 'Le vérificateur : il contrôle chaque livrable avant qu’il te soit rendu (formats, durées, fautes, respect de ta demande).' },
   renfort: { label: 'Renfort', icon: '🤖', color: '#9AA3B5', type: '', what: 'Un coup de main sur une tâche à part.' },
 };
@@ -33,10 +37,14 @@ export const ROLE_TOOLS: Record<Role, string[]> = {
   chef: ['Agent', 'TodoWrite', 'Skill', 'Read', 'Write', 'Edit', 'Glob', 'Grep', 'WebSearch', 'WebFetch', 'Bash'],
   recherche: ['Skill', ...WEB, 'Read', 'Write', 'Glob', 'Grep'],
   redaction: ['Skill', ...FILES, ...WEB],
+  tournage: ['Skill', ...FILES, ...WEB],
+  voix: ['Skill', ...FILES, 'Bash', 'WebFetch'],
   montage: ['Skill', ...FILES, 'Bash', 'WebFetch'],
   son: ['Skill', ...FILES, 'Bash', ...WEB],
   design: ['Skill', ...FILES, 'Bash', 'WebFetch'],
+  miniatures: ['Skill', ...FILES, 'Bash', 'WebFetch'],
   social: ['Skill', ...FILES, ...WEB],
+  stats: ['Skill', ...FILES, 'Bash', ...WEB],
   code: ['Skill', ...FILES, 'Bash', 'WebFetch'],
   qualite: ['Skill', ...FILES, 'Bash'],
   renfort: [],
@@ -53,7 +61,11 @@ export const TYPE_ROLE: Record<string, Role> = {
   ingeson: 'son', bruiteur: 'son',
   designer: 'design', retoucheur: 'design',
   socialmedia: 'social', community: 'social',
-  developpeur: 'code', analyste: 'code',
+  realisateur: 'tournage', regisseur: 'tournage',
+  directeurvoix: 'voix', traducteur: 'voix',
+  miniaturiste: 'miniatures', testeur: 'miniatures',
+  analyste: 'stats', croissance: 'stats',
+  developpeur: 'code', automatiseur: 'code',
   verificateur: 'qualite',
 };
 
@@ -65,12 +77,16 @@ export const TYPE_LABEL: Record<string, string> = {
   ingeson: '🎧 Son & musique', bruiteur: '💥 Bruitages (SFX)',
   designer: '🎨 Graphisme', retoucheur: '📸 Retouche photo',
   socialmedia: '📱 Social media', community: '💬 Community manager',
-  developpeur: '💻 Code', analyste: '📊 Analyse',
+  realisateur: '🎥 Réalisation', regisseur: '📋 Régie de tournage',
+  directeurvoix: '🎙️ Direction de voix', traducteur: '🌍 Traduction & sous-titres',
+  miniaturiste: '🖼️ Miniatures', testeur: '🧪 Tests A/B',
+  analyste: '📊 Statistiques', croissance: '🚀 Croissance',
+  developpeur: '💻 Code', automatiseur: '⚙️ Automatisations',
   verificateur: '✅ Contrôle qualité',
 };
 
 /** Les anciens coins du bureau (missions enregistrées avant les îles) → leur île. */
-const LEGACY: Record<string, Role> = { analyse: 'code' };
+const LEGACY: Record<string, Role> = { analyse: 'stats' };
 
 /** Le bon métier d'un agent, même pour une mission enregistrée avant les îles. */
 export function fixRole(role: string, type?: string): Role {
@@ -103,7 +119,11 @@ export const NAMES: Record<Role, string[]> = {
   son: ['Daft', 'Nina', 'Ravel', 'Edith', 'Django', 'Björk', 'Satie', 'Lili'],
   design: ['Frida', 'Coco', 'Henri', 'Sonia', 'Saul', 'Paula', 'Nadar', 'Vivian'],
   social: ['Kylie', 'Enzo', 'Mila', 'Tara', 'Yanis', 'Lina', 'Rayan', 'Emma'],
-  code: ['Ada', 'Linus', 'Grace', 'Alan', 'Margaret', 'Marie', 'Blaise', 'Émilie'],
+  tournage: ['Spike', 'Sofia', 'Akira', 'Jacques', 'Céline', 'Wes', 'Greta', 'Luc'],
+  voix: ['Barbara', 'Gabin', 'Arletty', 'Yves', 'Juliette', 'Serge', 'Dalida', 'Léo'],
+  miniatures: ['Andy', 'Keith', 'Yayoi', 'Banksy', 'Niki', 'Roy', 'Joan', 'Pablo'],
+  stats: ['Marie', 'Blaise', 'Émilie', 'Gauss', 'Ada', 'Hypatie', 'Euler', 'Sophie'],
+  code: ['Linus', 'Grace', 'Alan', 'Margaret', 'Tim', 'Hedy', 'Ken', 'Radia'],
   qualite: ['Vera', 'Oscar', 'Clara', 'Félix'],
   renfort: ['Bob', 'Lulu', 'Gaston', 'Nina', 'Momo', 'Kiki'],
 };

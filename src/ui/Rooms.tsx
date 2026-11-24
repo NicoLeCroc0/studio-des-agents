@@ -283,7 +283,7 @@ function TeamRoom({ role }: { role?: Role }) {
   const [open, setOpen] = useState<string | null>(null);
   useEffect(() => { if (tab === 'history' && connection === 'live') send({ t: 'team_history' }); }, [tab, connection, send]);
   const working = (r: Role) => [...world.actors.values()].filter((a) => a.role === r && a.seated).length;
-  const roles: Role[] = ['chef', 'recherche', 'redaction', 'montage', 'son', 'design', 'social', 'code', 'qualite'];
+  const roles: Role[] = ['chef', 'qualite', 'recherche', 'redaction', 'tournage', 'voix', 'montage', 'son', 'design', 'miniatures', 'social', 'stats', 'code'];
   const missions = useMemo(() => {
     const m = new Map<string, { title: string; at: number; entries: NonNullable<typeof history> }>();
     for (const e of history ?? []) {

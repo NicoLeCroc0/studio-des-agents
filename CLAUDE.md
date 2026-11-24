@@ -16,13 +16,15 @@ Lis ce fichier avant de modifier le code. Pour installer et lancer le studio, su
 
 ## Ce qui est propre au studio
 
-- **L'archipel** : 15 agents Claude Code (`server/team.ts`) répartis sur des îles. Une île = un `Role` (`shared/protocol.ts`) :
-  `recherche` (Veille : `chercheur`, `tendances`), `redaction` (Scripts : `scenariste`, `redacteur`), `montage` (`monteur`, `motion`),
-  `son` (`ingeson`, `bruiteur`), `design` (Graphisme : `designer`, `retoucheur`), `social` (Réseaux : `socialmedia`, `community`),
-  `code` (`developpeur`, `analyste`) et `qualite` (`verificateur`, sur l'île cerveau avec Max, `chef`). `TYPE_ROLE` (`shared/activity.ts`)
+- **L'archipel** : 23 agents Claude Code (`server/team.ts`) répartis sur des îles. Une île = un `Role` (`shared/protocol.ts`) :
+  `recherche` (Veille : `chercheur`, `tendances`), `redaction` (Scripts : `scenariste`, `redacteur`), `tournage` (`realisateur`,
+  `regisseur`), `voix` (`directeurvoix`, `traducteur`), `montage` (`monteur`, `motion`), `son` (`ingeson`, `bruiteur`),
+  `design` (Graphisme : `designer`, `retoucheur`), `miniatures` (`miniaturiste`, `testeur`), `social` (Réseaux : `socialmedia`,
+  `community`), `stats` (`analyste`, `croissance`), `code` (`developpeur`, `automatiseur`) et `qualite` (`verificateur`, dans le
+  cerveau avec Max, `chef`). `TYPE_ROLE` (`shared/activity.ts`)
   dit sur quelle île s'installe chaque agent, `TYPE_LABEL` donne le métier affiché. `fixRole()` range les agents des missions
-  enregistrées avant les îles (ancien coin `analyse`).
-- **Le plan de l'archipel** (`src/engine/layout.ts`) : `ISLANDS` (la terre), `BRIDGES` (les ponts-neurones, cases où l'on marche),
+  enregistrées avant les îles (ancien coin `analyse` → `stats`).
+- **Le plan de l'archipel** (`src/engine/layout.ts`, 36 × 25 cases) : une couronne de 12 îles autour du cerveau. `ISLANDS` (la terre, et `lane`, la colonne libre où arrivent les ponts), `BRIDGES` (les ponts-neurones, cases où l'on marche),
   six bureaux par île, et `PTS` (les points utiles : corbeille, imprimante, café…). Le dessin du décor est dans `room.ts`, les
   influx animés sur les ponts dans `render.ts` (`synapses`).
 - **La mémoire** : `~/Documents/Studio des agents/Mémoire` (charte.md, scripts/, recettes/, visuels/) est passée avec `--add-dir` ;
@@ -44,7 +46,7 @@ gardent l'extension `.ts`, et rien qui demande une vraie compilation (pas d'`enu
   `act`, `report`, `leave`, `file`, `ask`, `end`… **`shared/activity.ts`** : les métiers, leurs outils, les textes affichés.
 - **`src/state/store.ts`** (zustand) range chaque événement, puis le transmet au moteur (`src/state/bus.ts` → `src/engine/world.ts`).
 - **`src/engine/`** : le monde (`world.ts` : robots, déplacements A*, chat, mode soirée), le dessin (`render.ts`, `room.ts`,
-  `furniture.ts`, `robots.ts` : tout le pixel art est dessiné en code, sur une image de 448 × 304), la caméra et son réalisateur
+  `furniture.ts`, `robots.ts` : tout le pixel art est dessiné en code, sur une image de 576 × 400), la caméra et son réalisateur
   (`camera.ts`), les clics (`hits.ts`).
 - **`src/ui/`** : l'interface React. `Office.tsx` (le canevas, les bulles, la boucle d'animation), `Dialog.tsx` (Max et la boîte de
   saisie), `Rooms.tsx` (les fenêtres qu'on ouvre en cliquant), `interact.ts` (ce que fait chaque clic).

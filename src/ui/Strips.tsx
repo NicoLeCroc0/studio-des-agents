@@ -13,7 +13,7 @@ export function Strips() {
     return (
       <div className="strips">
         <div className="legend">
-          {(['recherche', 'redaction', 'montage', 'son', 'design', 'social', 'code'] as const).map((r) => (
+          {(['recherche', 'redaction', 'tournage', 'voix', 'montage', 'son', 'design', 'miniatures', 'social', 'stats', 'code'] as const).map((r) => (
             <span key={r} style={{ ['--c' as string]: ROLES[r].color }}>{ROLES[r].icon} {ROLES[r].label}</span>
           ))}
         </div>
