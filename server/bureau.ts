@@ -11,7 +11,7 @@ import { appendFile, copyFile, mkdir, readdir, readFile, rename, stat, unlink, w
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { countStats, emptyStats, fixRole } from '../shared/activity.ts';
+import { countStats, emptyStats, fixRole, frenchErrorOrRaw } from '../shared/activity.ts';
 import type { ClaudeInfo, FileInfo, Logged, MissionInfo, OfficeEvent, Quota, ServerMsg, Settings, TeamEntry, VersionInfo } from '../shared/protocol.ts';
 import { ClaudeProcess, Normalizer, type ClaudeBinary, type TurnResult } from './claude.ts';
 import { agentsJson, ALWAYS_ALLOWED, chefPrompt, SESSION_TOOLS } from './team.ts';
@@ -360,8 +360,9 @@ export class Bureau {
       return;
     }
     if (cur.mission.status === 'working') {
+      const raw = stderr.split('\n').filter(Boolean).slice(-3).join(' ');
       const message = failed
-        ? (stderr.split('\n').filter(Boolean).slice(-3).join(' ') || (signal ? `Claude Code s’est arrêté (${signal}).` : `Claude Code s’est arrêté (code ${code}).`))
+        ? (raw ? frenchErrorOrRaw(raw) : signal ? `Claude Code s’est arrêté (${signal}).` : `Claude Code s’est arrêté (code ${code}).`)
         : 'Claude Code s’est arrêté.';
       if (!cur.stopAsked) this.record(cur, { k: 'error', message });
       // les membres de l'équipe encore présents s'en vont

@@ -8,6 +8,8 @@ let muted = false;
 export function setMuted(m: boolean) { muted = m; }
 
 ZZFX.volume = 0.32;
+/** Règle le volume des bruitages (0 à 1 ; 0,7 = le volume d'origine). */
+export function setSfxVolume(v: number) { ZZFX.volume = 0.46 * Math.max(0, Math.min(1, v)); }
 
 // Le navigateur n'autorise le son qu'après un premier geste : on réveille l'audio au premier clic.
 if (typeof window !== 'undefined') {

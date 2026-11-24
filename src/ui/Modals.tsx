@@ -2,8 +2,10 @@
 // les missions précédentes, les réglages, et les petites notifications.
 import { useMemo } from 'react';
 import { sfx } from '../audio/sfx.ts';
+import { jukebox } from '../audio/music.ts';
+import { say } from '../audio/voice.ts';
 import { savePref, useOffice } from '../state/store.ts';
-import { applySound } from '../audio/sound.ts';
+import { applySound, applyVolumes } from '../audio/sound.ts';
 import { FileList } from './Panel.tsx';
 import { fmtDate, fmtDuration, plural, tilde } from './format.ts';
 import { mdToHtml } from './md.ts';
@@ -160,6 +162,9 @@ export function SettingsPanel() {
   const dir = useOffice((s) => s.dir);
   const voiceOn = useOffice((s) => s.voiceOn);
   const cameraAuto = useOffice((s) => s.cameraAuto);
+  const voiceVolume = useOffice((s) => s.voiceVolume);
+  const sfxVolume = useOffice((s) => s.sfxVolume);
+  const music = useOffice((s) => s.music);
   if (!open) return null;
   const close = () => useOffice.setState({ settingsOpen: false });
   return (
@@ -183,6 +188,22 @@ export function SettingsPanel() {
             <span>Les permissions</span>
             <label className="radio"><input type="radio" checked={settings.permission === 'auto'} onChange={() => send({ t: 'settings', settings: { permission: 'auto' } })} /> L’équipe décide seule, et lève la main pour les gestes risqués</label>
             <label className="radio"><input type="radio" checked={settings.permission === 'ask'} onChange={() => send({ t: 'settings', settings: { permission: 'ask' } })} /> Elle demande avant chaque commande</label>
+          </div>
+          <div className="field">
+            <span>Le son</span>
+            <label className="volume-row">🎙️ La voix de Max
+              <input type="range" min={0} max={1} step={0.05} value={voiceVolume} onChange={(e) => { const v = Number(e.target.value); useOffice.setState({ voiceVolume: v }); savePref('voiceVolume', v); applyVolumes(); }} onPointerUp={() => void say('feu-vert', true)} />
+              <b>{Math.round(voiceVolume * 100)} %</b>
+            </label>
+            <label className="volume-row">🔔 Les bruitages du studio
+              <input type="range" min={0} max={1} step={0.05} value={sfxVolume} onChange={(e) => { const v = Number(e.target.value); useOffice.setState({ sfxVolume: v }); savePref('sfxVolume', v); applyVolumes(); }} onPointerUp={() => sfx('check')} />
+              <b>{Math.round(sfxVolume * 100)} %</b>
+            </label>
+            <label className="volume-row">🎵 La musique du jukebox
+              <input type="range" min={0} max={1} step={0.05} value={music.volume} onChange={(e) => jukebox.setVolume(Number(e.target.value))} />
+              <b>{Math.round(music.volume * 100)} %</b>
+            </label>
+            <span className="small muted">Le bouton 🔊 en haut (ou la touche M) coupe tout d’un coup.</span>
           </div>
           <div className="field">
             <span>Le spectacle</span>

@@ -232,3 +232,41 @@ export function permissionText(tool: string, input: Record<string, unknown> | un
   }
   return { label: `Je peux utiliser ${tool} ?`, detail: clipped, full: false };
 }
+
+/**
+ * Les messages d'erreur de Claude Code arrivent en anglais : on les dit en français, avec quoi faire.
+ * Renvoie null si le texte n'est pas une erreur connue (le texte de Max, déjà en français, reste tel quel).
+ */
+export function frenchError(text: string): string | null {
+  const t = text.trim();
+  if (!t) return null;
+  const rules: [RegExp, string][] = [
+    [/payment is past due|settings\/billing|can.?t use your Claude subscription|subscription (has )?(expired|ended|inactive)/i,
+      'Claude Code ne peut pas utiliser ton abonnement Claude : il y a sans doute un paiement en retard ou un abonnement arrêté. Va sur claude.ai/settings/billing pour le régler ou le renouveler (si tu viens de payer, réessaie dans quelques minutes). Puis relance la mission.'],
+    [/credit balance is too low|insufficient.*credit/i,
+      'Le crédit de ton compte Anthropic est épuisé. Recharge-le sur console.anthropic.com (Billing), puis relance la mission.'],
+    [/usage limit|rate.?limit|limit reached|hit your limit|5-hour limit|too many requests|\b429\b/i,
+      'Tu as atteint la limite de ton abonnement Claude pour le moment. Elle se recharge au bout de quelques heures : réessaie plus tard (la barre « Énergie » en haut montre où tu en es).'],
+    [/invalid api key|please run \/login|not logged in|log ?in again|oauth token (has )?expired|unauthorized|authentication|\b401\b/i,
+      'Claude Code n’est plus connecté à ton compte. Dans le Terminal, lance « claude », tape /login et reconnecte-toi, puis /exit, et relance la mission.'],
+    [/overloaded|\b529\b/i,
+      'Les serveurs de Claude sont surchargés en ce moment. Réessaie dans quelques minutes.'],
+    [/prompt is too long|context (window|length)|too many tokens/i,
+      'La conversation est devenue trop longue pour Max. Lance une nouvelle mission (bouton « + Nouvelle mission »), en lui redonnant l’essentiel.'],
+    [/model.*(not found|not available|does not exist|not supported)|invalid model/i,
+      'Le modèle choisi n’est pas disponible avec ton compte. Dans ⚙️ Réglages, choisis « Sonnet » pour Max et pour l’équipe, puis relance.'],
+    [/ENOTFOUND|ECONNREFUSED|ECONNRESET|ETIMEDOUT|fetch failed|network|connection error|socket hang up/i,
+      'La connexion à internet a coupé (ou elle est trop lente). Vérifie ton wifi, puis relance la mission.'],
+    [/API Error: 5\d\d|internal server error|\b500\b|\b503\b/i,
+      'Claude a eu un souci de son côté. Réessaie dans un instant.'],
+    [/permission denied|EACCES/i,
+      'L’ordinateur a refusé l’accès à un fichier ou un dossier. Vérifie que le dossier du studio n’est pas protégé, puis relance.'],
+  ];
+  for (const [re, fr] of rules) if (re.test(t)) return fr;
+  return null;
+}
+
+/** Une erreur de Claude Code, toujours en français : traduite si on la connaît, sinon expliquée. */
+export function frenchErrorOrRaw(text: string): string {
+  return frenchError(text) ?? `Claude Code a rencontré un problème. Son message (en anglais) : « ${cut(text, 300)} ». Réessaie ; si ça recommence, envoie ce message à la personne qui t’aide.`;
+}

@@ -640,3 +640,8 @@ select.versions { background: var(--surface2); color: var(--ink); border: 1px so
 .office3d-layer { position: absolute; inset: 0; pointer-events: none; overflow: hidden; font-size: clamp(11px, calc(var(--s) * 6px), 15px); }
 .office3d-layer .bubble.ask { pointer-events: auto; }
 .app.vertical .office.office3d { min-height: 46vh; flex: 1; }
+
+/* ── Les volumes (réglages) ── */
+.volume-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(90px, 1.4fr) 3.2em; align-items: center; gap: 10px; font-size: 13px; padding: 4px 0; }
+.volume-row input[type=range] { width: 100%; accent-color: var(--orange); }
+.volume-row b { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; color: var(--muted); }

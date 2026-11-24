@@ -93,6 +93,9 @@ interface S {
   music: { playing: boolean; index: number; volume: number };
   /** la voix de Max (ElevenLabs) */
   voiceOn: boolean;
+  /** le volume de la voix de Max et celui des bruitages (0 à 1) */
+  voiceVolume: number;
+  sfxVolume: number;
   /** en mode tournage, la caméra suit l'action toute seule */
   cameraAuto: boolean;
   /** la visite guidée en cours (le texte que Max dit) */
@@ -159,6 +162,8 @@ export const useOffice = create<S>((set, get) => ({
   planHistory: [],
   music: { playing: false, index: 0, volume: 0.55 },
   voiceOn: pref('voice', true),
+  voiceVolume: pref('voiceVolume', 0.95),
+  sfxVolume: pref('sfxVolume', 0.7),
   cameraAuto: pref('cameraAuto', true),
   tour: null,
   historyOpen: false,

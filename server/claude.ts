@@ -10,7 +10,7 @@ import { existsSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import readline from 'node:readline';
-import { describeAct, NAMES, permissionText, roleOfType, ROLES, cut } from '../shared/activity.ts';
+import { describeAct, frenchError, NAMES, permissionText, roleOfType, ROLES, cut } from '../shared/activity.ts';
 import type { OfficeEvent, PlanItem, Quota, Role } from '../shared/protocol.ts';
 
 export interface ClaudeBinary { path: string; version: string }
@@ -225,10 +225,13 @@ export class Normalizer {
       case 'stream_event': this.stream(m); break;
       case 'assistant': this.assistant(m); break;
       case 'user': this.user(m); break;
-      case 'result':
+      case 'result': {
         this.typing.clear();
-        this.onResult({ ok: !m.is_error && m.subtype === 'success', text: String(m.result ?? ''), ms: Number(m.duration_ms ?? 0), subtype: String(m.subtype ?? '') });
+        const ok = !m.is_error && m.subtype === 'success';
+        const text = String(m.result ?? '');
+        this.onResult({ ok, text: ok ? text : frenchError(text) ?? text, ms: Number(m.duration_ms ?? 0), subtype: String(m.subtype ?? '') });
         break;
+      }
       case 'rate_limit_event': {
         const w = m.rate_limit_info?.unifiedWindows ?? {};
         if (w.five_hour) this.onQuota({ fiveHour: Number(w.five_hour.utilization ?? 0), resetsAt: Number(w.five_hour.resetsAt ?? 0) || null });
@@ -301,10 +304,14 @@ export class Normalizer {
   private assistant(m: Json) {
     const who: string = m.parent_tool_use_id ?? 'chef';
     const content = Array.isArray(m.message?.content) ? m.message.content : [];
+    // les erreurs de Claude Code (abonnement, limite, connexion…) arrivent comme une réponse « synthétique », en anglais
+    const synthetic = m.message?.model === '<synthetic>' || !!m.error || m.isApiErrorMessage === true;
     for (const c of content as Json[]) {
       if (c.type === 'text' && String(c.text ?? '').trim()) {
         this.typing.delete(who);
-        this.emit({ k: 'say', who, text: String(c.text) });
+        // une erreur de Claude Code déguisée en réponse (abonnement, limite…) : on la dit en français
+        const text = String(c.text);
+        this.emit({ k: 'say', who, text: (synthetic && frenchError(text)) || text });
       } else if (c.type === 'tool_use') {
         const name = String(c.name ?? '');
         const input = (c.input ?? {}) as Record<string, unknown>;
@@ -335,6 +342,8 @@ export class Normalizer {
 
   private user(m: Json) {
     const content = Array.isArray(m.message?.content) ? m.message.content : [];
+    // les erreurs de Claude Code (abonnement, limite, connexion…) arrivent comme une réponse « synthétique », en anglais
+    const synthetic = m.message?.model === '<synthetic>' || !!m.error || m.isApiErrorMessage === true;
     for (const c of content as Json[]) {
       if (c.type !== 'tool_result') continue;
       const id = String(c.tool_use_id ?? '');

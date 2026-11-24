@@ -7,12 +7,20 @@ export type Line =
   | 'visite-1' | 'visite-2' | 'visite-3' | 'visite-4' | 'visite-5' | 'visite-6' | 'visite-7' | 'visite-8';
 
 let enabled = true;
+/** le volume de la voix de Max (0 à 1) */
+let volume = 0.95;
 let current: HTMLAudioElement | null = null;
 let lastAt = 0;
 
 export function setVoice(on: boolean) {
   enabled = on;
   if (!on) stopVoice();
+}
+
+/** Règle le volume de la voix de Max (0 à 1), aussi pendant qu'il parle. */
+export function setVoiceVolume(v: number) {
+  volume = Math.max(0, Math.min(1, v));
+  if (current) current.volume = volume;
 }
 
 export function stopVoice() {
@@ -31,7 +39,7 @@ export function say(line: Line, force = false): Promise<void> {
   lastAt = now;
   stopVoice();
   const a = new Audio(`voice/${line}.mp3`);
-  a.volume = 0.95;
+  a.volume = volume;
   current = a;
   jukebox.duck(true);
   return new Promise((resolve) => {
