@@ -7,3 +7,4 @@ dist/
 .vscode/
 .idea/
 scripts/studio-loop.ps1
+graphify-out/
