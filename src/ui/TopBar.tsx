@@ -45,6 +45,7 @@ export function TopBar() {
   const sound = useOffice((s) => s.sound);
   const tod = useOffice((s) => s.tod);
   const musicOn = useOffice((s) => s.music.playing);
+  const view3d = useOffice((s) => s.view3d);
   useTick(busySince !== null);
   const elapsed = workMs + (busySince ? Date.now() - busySince : 0);
   const done = plan.filter((p) => p.status === 'completed').length;
@@ -109,6 +110,7 @@ export function TopBar() {
         <button className="icon-btn" title="Visite guidée : Max présente son bureau (T)" onClick={() => void startTour()}>🎤</button>
         <button className="icon-btn" title="Toute l’équipe : les métiers, leurs outils, l’historique" onClick={() => { sfx('open'); useOffice.setState({ modal: { kind: 'team' } }); }}>👥</button>
         <button className={`icon-btn ${musicOn ? 'on' : ''}`} title="Le jukebox (J)" onClick={() => { sfx('open'); useOffice.setState({ modal: { kind: 'jukebox' } }); }}>{musicOn ? '🎶' : '🎵'}</button>
+        <button className={`icon-btn phone-keep ${view3d ? 'on' : ''}`} title={view3d ? 'Passer en pixel art (plus léger)' : 'Passer en 3D (les îles flottantes)'} onClick={() => { sfx('click'); useOffice.setState({ view3d: !view3d }); savePref('view3d', !view3d); }}>{view3d ? '🧊' : '👾'}</button>
         <button className="icon-btn phone-only" title="Le menu : tes médias, tes missions, les rendus" onClick={() => { sfx('open'); useOffice.setState({ menuOpen: true }); }}>☰</button>
         <button className="icon-btn phone-keep" title="Missions précédentes (H)" onClick={() => { sfx('open'); useOffice.setState({ historyOpen: true }); }}>🗂️</button>
         <button className="icon-btn" title={`L’heure du bureau : ${TOD_LABEL[tod]} (N)`} onClick={() => { sfx('click'); const n = TOD_NEXT[tod]; useOffice.setState({ tod: n }); savePref('tod', n); }}>{TOD_ICON[tod]}</button>

@@ -3,7 +3,9 @@
 **Un archipel d'agents IA pour tes vidéos YouTube, Shorts, Reels et TikTok : tu dis ce que tu veux, Max (le cerveau)
 envoie le travail sur les bonnes îles, le contrôle qualité vérifie tout, et tu récupères le résultat.**
 
-Le Studio des agents transforme Claude Code en archipel en pixel art. Au centre, le grand cerveau de Max, le chef de projet,
+Le Studio des agents transforme Claude Code en archipel d'îles flottantes en 3D (au-dessus d'une mer de nuages, avec cascades,
+plantes lumineuses et ponts-neurones ; fais glisser pour tourner autour, molette pour zoomer). Le bouton 🧊/👾 en haut repasse
+en pixel art, plus léger pour un vieil appareil. Au centre, le grand cerveau de Max, le chef de projet,
 et son laboratoire du contrôle qualité. Autour, une couronne de douze îles reliées au cerveau par des ponts lumineux comme
 des neurones : les Stats, la Veille, les Scripts, le Tournage, la Voix, le Son, le Montage, le Graphisme, les Miniatures,
 les Réseaux, le Code, et le port où arrive l'équipe. Max peut lancer plusieurs agents en même temps (un chasseur de
@@ -166,6 +168,8 @@ Sur l'ordinateur du studio lui-même, `http://localhost:4850` marche toujours sa
   en parallèle (et le contrôle qualité) consomme plus qu'une simple question : commence par de petites missions.
 
 ## Merci
+
+La vue 3D utilise [three.js](https://threejs.org) (licence MIT).
 
 Le Studio des agents est adapté du [Bureau des agents](https://github.com/devlikemasta/bureau-des-agents) de
 [VibesMoney](https://vibesmoney.com) (licence MIT) : le bureau en pixel art, la musique, la voix de Max et le moteur viennent de

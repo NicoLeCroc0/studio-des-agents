@@ -48,6 +48,10 @@ gardent l'extension `.ts`, et rien qui demande une vraie compilation (pas d'`enu
 - **`src/engine/`** : le monde (`world.ts` : robots, déplacements A*, chat, mode soirée), le dessin (`render.ts`, `room.ts`,
   `furniture.ts`, `robots.ts` : tout le pixel art est dessiné en code, sur une image de 576 × 400), la caméra et son réalisateur
   (`camera.ts`), les clics (`hits.ts`).
+- **`src/engine3d/scene.ts`** : la vue 3D (three.js, par défaut) : les îles flottantes, écartées et à des hauteurs différentes
+  (`OFFSET`, `placeTile()` passe d'un point de la grille à l'espace 3D), roches suspendues, lianes et plantes lumineuses, cascades,
+  ponts-neurones, spores, le cerveau lumineux et le bloom. Elle lit le même `World` que le pixel art ; `src/ui/Office3D.tsx` place
+  les bulles (projection), gère le glisser pour tourner et les clics (`pick()` → `hitAt`). Le bouton 🧊/👾 bascule (`view3d`).
 - **`src/ui/`** : l'interface React. `Office.tsx` (le canevas, les bulles, la boucle d'animation), `Dialog.tsx` (Max et la boîte de
   saisie), `Rooms.tsx` (les fenêtres qu'on ouvre en cliquant), `interact.ts` (ce que fait chaque clic).
 - **`src/audio/`** : bruitages ZzFX, jukebox (`public/music/`), voix de Max (`public/voice/`).
@@ -64,8 +68,8 @@ fournit le rythme de la musique (voir la boucle de `Office.tsx`).
 
 - **Français, tutoiement, phrases courtes** dans tout ce que l'utilisateur lit. Le bureau est fait pour des débutants.
 - **Jamais de chemin complet ni de nom d'utilisateur à l'écran** : `tidy()` (`src/ui/tidy.ts`) et `tilde()` (`src/ui/format.ts`).
-- **Léger** : la boucle dessine au plus 24 images par seconde en mission, 8 au repos, rien quand l'onglet est caché ; environ une
-  milliseconde par image. Pas de 3D, pas de bibliothèque lourde.
+- **Léger** : en pixel art, la boucle dessine au plus 24 images par seconde en mission, 8 au repos ; en 3D, 30 au plus ; rien
+  quand l'onglet est caché. three.js est la seule grosse bibliothèque (la vue 3D, voulue par le patron) : pas d'autre.
 - **Sécurité** : le serveur n'écoute que sur 127.0.0.1 (sauf `STUDIO_HOST`, seulement avec un mot de passe) et vérifie l'origine des WebSocket ; à distance, tout passe par le mot de passe ; l'équipe tourne en `--restricted`, avec
   seulement les outils de son métier ; les sites créés s'affichent sous `/apercu/` dans un bac à sable (CSP `sandbox`).
 - **zustand** : un sélecteur qui renvoie un nouveau tableau ou objet passe par `useShallow`, sinon React boucle.

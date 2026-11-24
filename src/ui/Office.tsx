@@ -10,6 +10,7 @@ import { interact } from './interact.ts';
 import { H, W } from '../engine/layout.ts';
 import { sfx } from '../audio/sfx.ts';
 import { useOffice, type AskView } from '../state/store.ts';
+import { Office3D } from './Office3D.tsx';
 
 const ICON: Record<ActKind, string> = {
   search: '🔎', web: '🌐', read: '📖', write: '✍️', edit: '✏️', bash: '💻', plan: '📋', skill: '🎓', mcp: '🔌', other: '⚙️',
@@ -19,7 +20,7 @@ const ICON: Record<ActKind, string> = {
 export const perf = { frames: 0, ms: 0 };
 
 /** Les bulles accrochées aux robots : on les déplace à chaque image, sans repasser par React. */
-const bubbleEls = new Map<string, HTMLElement>();
+export const bubbleEls = new Map<string, HTMLElement>();
 
 function placeBubbles(scale: number) {
   const stageW = W * scale;
@@ -46,7 +47,13 @@ function placeBubbles(scale: number) {
   }
 }
 
+/** Le studio : en 3D (les îles flottantes) ou en pixel art (plus léger, pour les petits appareils). */
 export function Office() {
+  const view3d = useOffice((s) => s.view3d);
+  return view3d ? <Office3D /> : <Office2D />;
+}
+
+function Office2D() {
   const wrap = useRef<HTMLDivElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -189,7 +196,7 @@ export function Office() {
 }
 
 /** En mode tournage : « EN DIRECT » et le chrono, comme à la télé. */
-function LiveBadge() {
+export function LiveBadge() {
   const filming = useOffice((s) => s.filming);
   const busy = useOffice((s) => s.busySince !== null);
   const replaying = useOffice((s) => s.replaying);
@@ -214,7 +221,7 @@ interface View {
 /** Une bulle plus courte : sans guillemets, le sujet après deux-points. */
 const short = (label: string) => label.replace(/\s«\s?(.+?)\s?»/, ' : $1');
 
-function Bubbles() {
+export function Bubbles() {
   const version = useSyncExternalStore(subscribeRoster, () => world.rosterVersion);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const ids = useMemo(() => [...world.actors.keys()], [version]);

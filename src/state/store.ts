@@ -100,6 +100,8 @@ interface S {
   historyOpen: boolean;
   /** sur le téléphone : le panneau (médias, missions, rendus) ouvert en plein écran */
   menuOpen: boolean;
+  /** l'archipel en 3D (sinon, en pixel art) */
+  view3d: boolean;
   settingsOpen: boolean;
   vertical: boolean;
   /** écran en hauteur (téléphone) : même mise en page que le cadre vertical */
@@ -161,6 +163,7 @@ export const useOffice = create<S>((set, get) => ({
   tour: null,
   historyOpen: false,
   menuOpen: false,
+  view3d: pref('view3d', true),
   settingsOpen: false,
   vertical: pref('vertical', false),
   portrait: typeof window !== 'undefined' && window.innerWidth / Math.max(1, window.innerHeight) < 0.8,

@@ -4,6 +4,9 @@
 
 L'archipel.
 
+- L'archipel en 3D (three.js) : des îles qui flottent à des hauteurs différentes au-dessus d'une mer de nuages, roches
+  suspendues, lianes et plantes lumineuses, cascades, spores, et le grand cerveau de Max qui pulse au centre. On tourne autour
+  en faisant glisser. La vue pixel art reste disponible (bouton 🧊/👾).
 - Le bureau devient un archipel : une couronne de douze îles (Stats, Veille, Scripts, Tournage, Voix, Son, Montage,
   Graphisme, Miniatures, Réseaux, Code et le port) autour du grand cerveau de Max, reliées par des ponts lumineux où courent
   des influx (ils s'allument quand une île travaille).
