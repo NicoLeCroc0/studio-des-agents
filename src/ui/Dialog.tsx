@@ -13,27 +13,27 @@ import { dictationHelp, useDictation } from './voice.ts';
 export const EXAMPLES: { label: string; prompt: string }[] = [
   {
     label: '🎬 3 Shorts depuis ma vidéo',
-    prompt: 'Prends la vidéo la plus longue de mes médias et tire-en 3 Shorts verticaux (9:16, moins de 60 secondes) avec les meilleurs moments, des sous-titres lisibles et un titre accrocheur au début. Un monteur par Short.',
+    prompt: 'Prends la vidéo la plus longue de mes médias et tire-en 3 Shorts verticaux (9:16, moins de 60 secondes) avec les meilleurs moments : accroche dès la première seconde, sous-titres lisibles, zooms punch sur les mots forts, whoosh sur les coupes et musique discrète sous la voix. Un monteur par Short, puis le son et les effets, puis le contrôle qualité.',
   },
   {
-    label: '📸 Retouche mes photos',
-    prompt: 'Retouche toutes les photos de mes médias : lumière, contraste et couleurs naturelles, puis exporte chaque photo en carré 1080×1080 pour Instagram et en 1200×627 pour LinkedIn. Répartis les photos entre plusieurs retoucheurs.',
+    label: '🔥 Vidéo virale de A à Z',
+    prompt: 'Trouve un sujet qui marche en ce moment dans ma niche (regarde ma charte), écris le script d’un Short de 30 à 45 secondes, puis prépare tout pour le tournage : découpage plan par plan, textes à l’écran, bruitages, musique, miniature et fiche de publication TikTok, Reels et Shorts.',
+  },
+  {
+    label: '📈 Tendances de ma niche',
+    prompt: 'Fais la veille de ma niche : ce qui marche en ce moment sur TikTok, les Reels et les Shorts (sujets, formats, accroches, sons). Lance un chasseur de tendances par réseau, puis rends-moi un top 10 d’idées de vidéos classées par potentiel, avec les liens d’exemples.',
   },
   {
     label: '🎨 Miniature YouTube',
-    prompt: 'Crée 3 propositions de miniature YouTube (1280×720) pour ma prochaine vidéo, avec un titre en gros, très lisible, et mes couleurs du règlement. Rends les PNG et dis-moi laquelle tu conseilles.',
+    prompt: 'Crée 3 propositions de miniature YouTube (1280×720) pour ma prochaine vidéo, avec un titre en gros, très lisible, et les couleurs de ma charte. Rends les PNG et dis-moi laquelle tu conseilles.',
   },
   {
-    label: '🔎 Analyse mes concurrents',
-    prompt: 'Analyse mes 5 principaux concurrents : pour chacun, son offre, ses prix et ce que ses clients en disent. Lance un chercheur par concurrent, puis rends-moi un tableau comparatif et 3 idées concrètes pour me démarquer.',
+    label: '🎧 Son pro + SFX',
+    prompt: 'Prends ma dernière vidéo dans mes médias : nettoie ma voix, ajoute une musique libre de droits discrète qui baisse quand je parle, des bruitages sur les coupes et les textes, et mets le tout à -14 LUFS pour les réseaux.',
   },
   {
-    label: '📰 Ma veille de la semaine',
-    prompt: 'Fais ma veille de la semaine sur mon secteur : les 5 nouveautés qui comptent (outils, annonces, tendances), avec pour chacune une phrase sur ce que ça change pour moi et le lien de la source.',
-  },
-  {
-    label: '✍️ Script de Reel',
-    prompt: 'Écris le script d’un Reel de 30 secondes sur mon activité, avec une accroche forte, un découpage plan par plan et les textes à l’écran. Ajoute 3 idées de musiques libres de droits qui collent.',
+    label: '📱 Ma semaine de publication',
+    prompt: 'Prépare ma semaine sur les réseaux : un calendrier de 5 vidéos (sujet, accroche, format, réseau, jour et heure), et pour chacune la légende, les hashtags et le commentaire à épingler.',
   },
 ];
 
@@ -99,7 +99,7 @@ export function Dialog() {
   if (tour) text = tour.text;
   else if (connection === 'offline') text = 'Je ne suis pas relié à Claude Code. Lance « npm start » dans le dossier du bureau, et on se met au travail.';
   else if (claude && !claude.found) text = 'Je ne trouve pas Claude Code sur cet ordinateur. Installe-le (claude.com/claude-code), connecte-toi, puis relance le bureau.';
-  else if (!mission) text = 'Salut ! Moi, c’est Max, le chef du bureau. Dis-moi ce dont tu as besoin : je monte l’équipe, et on s’y met sous tes yeux.';
+  else if (!mission) text = 'Salut ! Moi, c’est Max, le cerveau du studio. Dis-moi ce que tu veux créer : j’envoie le travail sur les bonnes îles, je vérifie tout, et je te le rends.';
   else if (chef.typing) text = stripMd(chef.typing);
   else if (final && !busy) text = stripMd(final.text) || (final.ok ? 'C’est prêt !' : 'Mission arrêtée.');
   else if (chef.say) text = stripMd(chef.say);

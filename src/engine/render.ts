@@ -4,7 +4,7 @@
 // Tout se dessine sur une toute petite image (352 × 256 pixels), agrandie sans flou : ça ne coûte presque rien.
 import type { ActKind } from '../../shared/protocol.ts';
 import { furniturePlacement } from './furniture.ts';
-import { BOARD, CLOCK, FURNITURE, H, NEON, T, W, WINDOWS, type Furn } from './layout.ts';
+import { BOARD, BRIDGES, CLOCK, FURNITURE, H, ISLANDS, islandOf, NEON, PTS, T, W, type Furn } from './layout.ts';
 import { g2d, makeCanvas, P, rgba, rng, type G } from './pixels.ts';
 import { ANCHOR_X, ANCHOR_Y, robotSprite } from './robots.ts';
 import { drawRoom, neon, signs, type TimeOfDay } from './room.ts';
@@ -32,11 +32,16 @@ export class Renderer {
   private light = makeCanvas(W, H);
   private lg = g2d(this.light);
   private placed: Placed[] = FURNITURE.map((f) => { const p = furniturePlacement(f); return { f, c: p.s.c, x: p.x, y: p.y, sortY: p.sortY }; });
+  /** les reflets d'étoiles (la nuit) et de soleil (le jour) sur la mer */
   private stars: { x: number; y: number; p: number }[] = [];
 
   constructor() {
     const r = rng(7);
-    for (const w of WINDOWS) for (let i = 0; i < 9; i++) this.stars.push({ x: w.x + 2 + Math.floor(r() * (w.w - 4)), y: w.y + 1 + Math.floor(r() * 12), p: r() * 6 });
+    const onLand = (x: number, y: number) => ISLANDS.some((i) => x >= i.x * T - 8 && x < (i.x + i.w) * T + 8 && y >= i.y * T - 8 && y < (i.y + i.h) * T + 12);
+    while (this.stars.length < 70) {
+      const x = Math.floor(r() * W), y = Math.floor(r() * H);
+      if (!onLand(x, y)) this.stars.push({ x, y, p: r() * 6 });
+    }
   }
 
   draw(g: G, world: World, tod: TimeOfDay, now: Date) {
@@ -45,8 +50,7 @@ export class Renderer {
     g.globalCompositeOperation = 'source-over';
     g.globalAlpha = 1;
     g.drawImage(this.bg, 0, 0);
-    if (tod === 'night') this.twinkle(g, t);
-    if (tod === 'day') this.clouds(g, t);
+    this.twinkle(g, t, tod);
     this.clockHands(g, now);
     this.board(g, world, t);
     // le néon (sa couleur change quand on clique dessus ; il grésille de temps en temps)
@@ -55,7 +59,7 @@ export class Renderer {
     // les écriteaux : le nom du coin, et combien d'agents y travaillent en ce moment
     const busy = new Map<string, number>();
     for (const a of world.actors.values()) if (a.seated && a.role !== 'chef') busy.set(a.role, (busy.get(a.role) ?? 0) + 1);
-    signs(g, (role) => busy.get(role) ?? 0);
+    this.synapses(g, world, t, tod);
 
     // qui est assis à quel bureau
     const atDesk = new Map<string, Actor>();
@@ -73,11 +77,12 @@ export class Renderer {
     items.push({ y: world.cat.sortY, k: 2, draw: () => world.cat.draw(g) });
     items.sort((a, b) => a.y - b.y || a.k - b.k);
     for (const it of items) it.draw();
+    // les écriteaux de chaque île, par-dessus les meubles du bord
+    signs(g, (role) => busy.get(role) ?? 0);
 
     if (t < world.discoUntil) this.discoBall(g, t);
     world.fx.draw(g);
-    if (tod === 'day') this.sunbeams(g);
-    else this.lighting(g, world, tod, atDesk, t);
+    if (tod !== 'day') this.lighting(g, world, tod, atDesk, t);
     if (t < world.discoUntil) this.discoSpots(g, t, world.discoUntil - t);
   }
 
@@ -104,7 +109,8 @@ export class Renderer {
       const on = t - who.actAt < 9;
       const col = on && who.act ? SCREEN[who.act] : '#5b6b8c';
       switch (f.role) {
-        case 'code': {
+        case 'code':
+        case 'montage': {
           // le reflet de l'écran sur les bords des moniteurs
           for (const mx of [1, 22]) {
             g.fillStyle = col;
@@ -120,7 +126,8 @@ export class Renderer {
           }
           break;
         }
-        case 'analyse': {
+        case 'son':
+        case 'qualite': {
           g.fillStyle = '#141a2c';
           g.fillRect(p.x + 23, p.y + 2, 7, 6);
           const bars = ['#ffd166', P.orange, '#4fb3ff', '#3ddc97'];
@@ -203,7 +210,7 @@ export class Renderer {
 
   /** La boule à facettes du mode soirée. */
   private discoBall(g: G, t: number) {
-    const cx = 176, cy = 30;
+    const cx = W / 2, cy = 30;
     g.fillStyle = '#8a8ea2';
     g.fillRect(cx, 0, 1, cy - 5);
     for (let y = -5; y <= 5; y++) {
@@ -222,8 +229,8 @@ export class Renderer {
     g.globalCompositeOperation = 'lighter';
     for (let i = 0; i < 9; i++) {
       const a = t * (0.7 + i * 0.13) + i * 2.1;
-      const x = 176 + Math.cos(a) * (60 + i * 12);
-      const y = 140 + Math.sin(a * 1.3) * (40 + i * 4);
+      const x = W / 2 + Math.cos(a) * (80 + i * 14);
+      const y = H / 2 + Math.sin(a * 1.3) * (60 + i * 6);
       const grd = g.createRadialGradient(x, y, 0, x, y, 14);
       grd.addColorStop(0, rgba(DISCO[i % DISCO.length], 0.32 * fade));
       grd.addColorStop(1, rgba(DISCO[i % DISCO.length], 0));
@@ -231,25 +238,6 @@ export class Renderer {
       g.fillRect(x - 14, y - 14, 28, 28);
     }
     g.globalCompositeOperation = 'source-over';
-  }
-
-  /** Deux petits nuages qui passent derrière les fenêtres, en journée. */
-  private clouds(g: G, t: number) {
-    for (const w of WINDOWS) {
-      g.save();
-      g.beginPath();
-      g.rect(w.x, w.y, w.w, 11);
-      g.clip();
-      for (let i = 0; i < 2; i++) {
-        const span = w.w + 30;
-        const x = w.x - 15 + ((t * (3 + i * 2) + i * 40 + w.x) % span);
-        const y = w.y + 3 + i * 4;
-        g.fillStyle = 'rgba(255,255,255,0.85)';
-        g.fillRect(Math.round(x), y, 9, 2);
-        g.fillRect(Math.round(x) + 2, y - 1, 5, 1);
-      }
-      g.restore();
-    }
   }
 
   /** Le petit cube orange au dos de l'ordinateur, qui s'allume quand l'agent travaille. */
@@ -272,34 +260,53 @@ export class Renderer {
     g.fillRect(cx, cy, 1, 1);
   }
 
-  private twinkle(g: G, t: number) {
+  /** Les reflets qui scintillent sur la mer : des étoiles la nuit, des éclats de soleil le jour. */
+  private twinkle(g: G, t: number, tod: TimeOfDay) {
+    const col = tod === 'day' ? '255,255,255' : tod === 'evening' ? '255,200,150' : '255,255,255';
     for (const s of this.stars) {
       const a = (Math.sin(t * 1.6 + s.p) + 1) / 2;
-      if (a < 0.35) continue;
-      g.fillStyle = `rgba(255,255,255,${(a * 0.9).toFixed(2)})`;
-      g.fillRect(s.x, s.y, 1, 1);
+      if (a < 0.55) continue;
+      g.fillStyle = `rgba(${col},${(a * (tod === 'day' ? 0.55 : 0.9)).toFixed(2)})`;
+      g.fillRect(s.x, s.y, tod === 'day' ? 2 : 1, 1);
     }
   }
 
-  /** En journée : de grands rayons de soleil qui tombent des fenêtres. */
-  private sunbeams(g: G) {
-    g.save();
-    g.beginPath();
-    g.rect(T, 3 * T, W - 2 * T, H - 4 * T);
-    g.clip();
+  /**
+   * Les influx nerveux : de petites lumières courent sur les ponts. Quand une île travaille, les ponts
+   * qui la relient au cerveau s'allument à sa couleur et les influx vont plus vite.
+   */
+  private synapses(g: G, world: World, t: number, tod: TimeOfDay) {
+    const busy = new Map<string, string>();
+    for (const a of world.actors.values()) if (a.seated && a.role !== 'chef' && t - a.actAt < 9) busy.set(islandOf(a.role), ROLES[a.role].color);
+    const calm = tod === 'day' ? '#c8f4ff' : '#b9a6ff';
+    BRIDGES.forEach((b, i) => {
+      if (b.b === 'mer') return;
+      const col = busy.get(b.a) ?? busy.get(b.b);
+      const xs = b.tiles.map((p) => p[0]), ys = b.tiles.map((p) => p[1]);
+      const x0 = Math.min(...xs) * T, y0 = Math.min(...ys) * T;
+      const len = (b.dir === 'h' ? xs.length : ys.length) * T + 8;
+      const speed = col ? 38 : 12;
+      for (const k of col ? [0, 0.5] : [0]) {
+        const d = ((t * speed + i * 17) / len + k) % 1;
+        const pos = Math.floor(d * len) - 4;
+        const x = b.dir === 'h' ? x0 + pos : x0 + 8;
+        const y = b.dir === 'h' ? y0 + 7 : y0 + pos;
+        g.fillStyle = col ?? calm;
+        g.globalAlpha = col ? 1 : 0.7;
+        g.fillRect(x, y, b.dir === 'h' ? 3 : 1, b.dir === 'h' ? 1 : 3);
+        g.globalAlpha = 1;
+      }
+    });
+    // le cerveau respire doucement : un halo qui pulse (plus fort quand l'équipe travaille)
+    const pulse = (Math.sin(t * (busy.size ? 3 : 1.2)) + 1) / 2;
+    const c = PTS.center;
+    const grd = g.createRadialGradient(c.x, c.y, 0, c.x, c.y, 70);
+    grd.addColorStop(0, rgba('#ff9ed0', 0.05 + pulse * (busy.size ? 0.12 : 0.05)));
+    grd.addColorStop(1, rgba('#ff9ed0', 0));
     g.globalCompositeOperation = 'lighter';
-    for (const w of WINDOWS) {
-      g.fillStyle = 'rgba(255,236,190,0.06)';
-      g.beginPath();
-      g.moveTo(w.x + 4, 48);
-      g.lineTo(w.x + w.w - 4, 48);
-      g.lineTo(w.x + w.w + 26, 120);
-      g.lineTo(w.x + 30, 120);
-      g.closePath();
-      g.fill();
-    }
+    g.fillStyle = grd;
+    g.fillRect(c.x - 70, c.y - 70, 140, 140);
     g.globalCompositeOperation = 'source-over';
-    g.restore();
   }
 
   private lighting(g: G, world: World, tod: TimeOfDay, atDesk: Map<string, Actor>, t: number) {
@@ -321,30 +328,35 @@ export class Renderer {
     const flick = Math.sin(t * 0.9) > 0.985 ? 0.25 : 1;
     const neonCol = NEON_COLORS[world.neonIndex][0];
     add(NEON.x + 12, NEON.y + 12, 52, neonCol, 0.75 * flick);
-    // les fenêtres : coucher de soleil ou clair de lune
-    for (const w of WINDOWS) add(w.x + w.w / 2, w.y + w.h + 8, 58, night ? '#7080d0' : '#ff9a6a', night ? 0.42 : 0.55);
+    // la lune (ou le soleil couchant) sur la mer, et les ponts-neurones qui luisent
+    add(W * 0.8, H * 0.1, 120, night ? '#7080d0' : '#ff9a6a', night ? 0.3 : 0.45);
+    for (const b of BRIDGES) {
+      const [bx, by] = b.tiles[0];
+      add(bx * T + 8, by * T + 8, 22, b.b === 'mer' ? '#ffe2b8' : '#9a7bff', 0.35);
+    }
     // le tableau du plan, éclairé
-    add(176, 28, 52, '#fff6e8', night ? 0.28 : 0.22);
+    add(BOARD.x + BOARD.w / 2, BOARD.y + 20, 52, '#fff6e8', night ? 0.28 : 0.22);
     // la lampe du chef et le liseré orange de son bureau
-    add(9 * T + 12, 7 * T - 6, 40, '#ffd9a0', 0.8);
-    add(11 * T, 7 * T + 14, 44, P.orange, 0.32);
-    // les lampadaires, le café, le serveur
-    if (!world.lampsOff.has('lamp')) add(1 * T + 8, 14 * T - 12, 52, '#ffcf8a', 0.85);
-    if (!world.lampsOff.has('lamp-r')) add(20 * T + 8, 14 * T - 12, 52, '#ffcf8a', 0.85);
+    add(PTS.chefLamp.x, PTS.chefLamp.y, 40, '#ffd9a0', 0.8);
+    add(PTS.chefGlow.x, PTS.chefGlow.y, 44, P.orange, 0.32);
+    // le cerveau luit doucement dans le noir
+    add(PTS.center.x, PTS.center.y, 80, '#ff9ed0', 0.22);
+    // les lampadaires du port
+    if (!world.lampsOff.has('lamp')) add(PTS.lampL.x, PTS.lampL.y, 52, '#ffcf8a', 0.85);
+    if (!world.lampsOff.has('lamp-r')) add(PTS.lampR.x, PTS.lampR.y, 52, '#ffcf8a', 0.85);
     // le jukebox, qui pulse sur la musique
-    if (world.musicOn) add(15 * T, 13 * T + 4, 30 + world.musicLevel * 18, ['#ff5fa2', P.orange, '#3fd8ff'][Math.floor(t * 1.5) % 3], 0.35 + world.musicLevel * 0.45);
+    if (world.musicOn) add(PTS.notes.x + 6, PTS.notes.y + 18, 30 + world.musicLevel * 18, ['#ff5fa2', P.orange, '#3fd8ff'][Math.floor(t * 1.5) % 3], 0.35 + world.musicLevel * 0.45);
     // les yeux du chat brillent dans le noir
     add(world.cat.x + (world.cat.right ? 4 : -4), world.cat.y - 8, 4, P.orange, 0.5);
-    add(16 * T + 14, 14 * T - 8, 14, P.orange, 0.5);
-    add(14 * T + 4, 3 * T + 6, 18, '#5fd0ff', 0.35);
-    add(11 * T, 15 * T + 8, 30, '#ffe2b8', 0.4);
-    if (t < world.printUntil) add(12 * T + 8, 4 * T - 2, 16, '#9effa8', 0.6);
+    add(PTS.steam.x + 3, PTS.steam.y + 8, 14, P.orange, 0.5);
+    add(PTS.rack.x, PTS.rack.y, 18, '#5fd0ff', 0.35);
+    if (t < world.printUntil) add(PTS.printer.x, PTS.printer.y + 2, 16, '#9effa8', 0.6);
     // les écrans éclairent les visages
     for (const a of atDesk.values()) {
       const on = t - a.actAt < 9;
       const col = on && a.act ? SCREEN[a.act] : '#8fa4d0';
       const sx = a.seat!.x, sy = a.seat!.y - 12;
-      add(sx, sy, on ? 26 : 18, a.role === 'design' && on ? '#ff9fd0' : col, on ? 0.75 : 0.35);
+      add(sx, sy, on ? 26 : 18, a.role === 'design' && on ? '#ffe08a' : a.role === 'son' && on ? '#ff9fd0' : col, on ? 0.75 : 0.35);
     }
     // un projecteur doux suit Max (le patron reste toujours bien visible)
     const chef = world.chef;

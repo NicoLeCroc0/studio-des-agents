@@ -46,6 +46,7 @@ button:disabled { cursor: default; opacity: 0.45; }
   height: 100%;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
   min-width: 0;
 }
 .app.vertical .frame {
@@ -270,6 +271,11 @@ button:disabled { cursor: default; opacity: 0.45; }
 .app.vertical .tools { margin-left: auto; }
 
 /* ── Le panneau de l'équipe ── */
+.icon-btn.phone-only, .panel-close { display: none; }
+.panel.open { position: fixed; inset: 0; z-index: 60; display: flex; border: 0; background: var(--bg); padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom)); }
+.panel.open .panel-close { display: block; position: sticky; top: 0; z-index: 2; }
+.app .panel.open .chips.col { display: flex; }
+@media (max-width: 760px) { .app .desk-only { display: none; } }
 .panel { border-left: 1px solid var(--line); background: rgba(10, 10, 13, 0.85); overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
 .card h3 { margin: 0 0 8px; font: 800 11.5px var(--font); text-transform: uppercase; letter-spacing: 0.09em; color: var(--orange2); display: flex; align-items: center; justify-content: space-between; }
@@ -353,7 +359,7 @@ button:disabled { cursor: default; opacity: 0.45; }
 .chip:hover { border-color: rgba(255, 138, 61, 0.5); background: rgba(255, 138, 61, 0.08); }
 
 /* ── Max, en bas (boîte de dialogue de jeu de rôle) ── */
-.dialog { padding: 10px 16px 14px; border-top: 1px solid var(--line); background: rgba(8, 8, 11, 0.92); display: grid; gap: 8px; }
+.dialog { padding: 10px 16px 14px; border-top: 1px solid var(--line); background: rgba(8, 8, 11, 0.92); display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
 .dialog-box {
   display: flex;
   gap: 14px;
@@ -375,7 +381,8 @@ button:disabled { cursor: default; opacity: 0.45; }
 .pill { font: 600 10px var(--pixel); padding: 1px 6px; border-radius: 4px; font-style: normal; }
 .pill.replay { background: var(--grad); color: #15121d; }
 
-.composer-row { display: flex; gap: 8px; align-items: stretch; }
+.composer-row { display: flex; gap: 8px; align-items: stretch; min-width: 0; }
+.composer-row textarea { min-width: 0; }
 .composer textarea {
   flex: 1;
   min-width: 0;
@@ -504,13 +511,15 @@ kbd { font: 600 11px var(--pixel); background: var(--surface3); border: 1px soli
   .main { grid-template-columns: minmax(0, 1fr); }
   .panel { display: none; }
   .topbar { flex-wrap: wrap; gap: 8px; padding: 8px 10px; }
-  .brand span, .energy, .tools .icon-btn:not(:first-child) { display: none; }
+  .brand span, .energy, .tools .icon-btn:not(:first-child):not(.phone-only):not(.phone-keep) { display: none; }
+  .tools .icon-btn.phone-only { display: grid; }
   .mission-head { flex-basis: 100%; order: 3; }
   .stats { order: 4; }
   .dialog-text { font-size: 15px; }
   .dialog-face { width: 56px; height: 56px; }
   .portrait { width: 48px; height: 48px; }
   .chips { display: none; }
+  .send { padding-inline: 12px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }

@@ -5,7 +5,7 @@ import type { ActKind, OfficeEvent, PlanItem, Role } from '../../shared/protocol
 import { Cat } from './cat.ts';
 import { Fx } from './fx.ts';
 import { iconFor } from './icons.ts';
-import { CHEF_SEAT, SEATS, SPOTS, T, WINDOWS, tileFeet, walkGrid, type Seat } from './layout.ts';
+import { CHEF_SEAT, NEON, PTS, ROWS, SEATS, SPOTS, T, W, tileFeet, walkGrid, type Seat } from './layout.ts';
 import { findPath, type Tile } from './path.ts';
 import type { Dir, Eyes, Pose } from './robots.ts';
 
@@ -71,7 +71,7 @@ export class Actor {
 
   get tile(): Tile {
     if (this.seated && this.seat) return this.seat.tile;
-    return [Math.max(0, Math.floor(this.x / T)), Math.max(0, Math.min(15, Math.floor((this.y - 2) / T)))];
+    return [Math.max(0, Math.floor(this.x / T)), Math.max(0, Math.min(ROWS - 1, Math.floor((this.y - 2) / T)))];
   }
 
   /** Le haut de la tête (pour accrocher les bulles). */
@@ -229,14 +229,14 @@ export class World {
     return SPOTS.overflow.find((t) => !used.has(t.join(','))) ?? SPOTS.overflow[0];
   }
 
+  /** Les données d'internet arrivent du ciel, au-dessus de l'île de l'agent. */
   private nearestWindow(a: Actor): Pt {
-    const w = a.x < 176 ? WINDOWS[0] : WINDOWS[1];
-    return { x: w.x + w.w / 2, y: w.y + w.h - 4 };
+    return { x: a.x + (a.x < W / 2 ? 18 : -18), y: 2 };
   }
 
   /** Les rapports se posent ici, dans la corbeille du bureau du chef. */
-  get inboxPt(): Pt { return { x: 9 * T + 52, y: 7 * T - 2 }; }
-  get printerPt(): Pt { return { x: 12 * T + 8, y: 4 * T - 4 }; }
+  get inboxPt(): Pt { return PTS.inbox; }
+  get printerPt(): Pt { return PTS.printer; }
 
   // ── Les événements ──
   apply(ev: OfficeEvent, live: boolean) {
@@ -267,12 +267,12 @@ export class World {
             { t: 'walk', tile: SPOTS.board, face: 'up', then: SPOTS.boardPx },
             { t: 'call', fn: () => { this.boardUntil = this.time + 1.6; } },
             { t: 'wait', ms: 1600, pose: 'write', dir: 'up' },
-            { t: 'call', fn: () => { this.fx.sparkle(SPOTS.boardPx.x, 24, 10, '#ffffff'); } },
+            { t: 'call', fn: () => { this.fx.sparkle(SPOTS.boardPx.x, SPOTS.boardPx.y - 30, 10, '#ffffff'); } },
             { t: 'walk', tile: CHEF_SEAT.tile },
             { t: 'sit', seat: CHEF_SEAT },
           );
         } else if (live) {
-          this.fx.sparkle(SPOTS.boardPx.x + (Math.random() - 0.5) * 60, 22, 5, '#3ddc97');
+          this.fx.sparkle(SPOTS.boardPx.x + 24 + (Math.random() - 0.5) * 60, SPOTS.boardPx.y - 32, 5, '#3ddc97');
         }
         break;
       }
@@ -288,7 +288,7 @@ export class World {
         if (live) {
           a.alpha = 0;
           a.dir = 'up';
-          this.fx.beam(SPOTS.doorOut.x, 15 * T + 10);
+          this.fx.beam(SPOTS.doorOut.x, PTS.beamY);
           this.queue(a,
             { t: 'fade', to: 1, ms: 250 },
             { t: 'slide', to: tileFeet(SPOTS.door), speed: 40 },
@@ -350,7 +350,7 @@ export class World {
         this.missionActive = false;
         for (const a of this.actors.values()) if (a !== chef && !a.left) { a.left = true; if (live) this.exit(a); else this.remove(a); }
         if (live) {
-          if (ev.ok) { this.fx.rain(22 * T); chef.happyUntil = this.time + 3; }
+          if (ev.ok) { this.fx.rain(W); chef.happyUntil = this.time + 3; }
           chef.tasks = [];
           this.queue(chef,
             { t: 'walk', tile: SPOTS.reception, then: SPOTS.receptionPx },
@@ -414,7 +414,7 @@ export class World {
     this.queue(a,
       { t: 'call', fn: () => { if (a.seat) this.seatOf.delete(a.seat.id); } },
       { t: 'walk', tile: SPOTS.door },
-      { t: 'call', fn: () => this.fx.beam(SPOTS.doorOut.x, 15 * T + 10) },
+      { t: 'call', fn: () => this.fx.beam(SPOTS.doorOut.x, PTS.beamY) },
       { t: 'slide', to: { x: a.x, y: SPOTS.doorOut.y }, speed: 40 },
       { t: 'fade', to: 0, ms: 200 },
       { t: 'call', fn: () => this.remove(a) },
@@ -438,24 +438,24 @@ export class World {
     let moving = this.fx.busy || this.time < this.printUntil || this.time < this.boardUntil;
     const chef = this.chef;
     // la vapeur du café
-    if (this.time > this.steamAt) { this.steamAt = this.time + 0.35; this.fx.steam(16 * T + 11, 13 * T + 4); }
+    if (this.time > this.steamAt) { this.steamAt = this.time + 0.35; this.fx.steam(PTS.steam.x, PTS.steam.y); }
     // le chat
     if (this.cat.update(dt, this.time, this.grid, (x, y) => this.fx.floatIcon(x, y, 'zzz'))) moving = true;
     // le jukebox : des notes qui s'envolent quand il joue
     if (this.musicOn && this.time > this.noteAt) {
       this.noteAt = this.time + 0.7 + Math.random() * 0.5;
-      this.fx.floatIcon(14 * T + 10 + Math.random() * 12, 13 * T + 2, Math.random() < 0.5 ? 'note' : 'note2');
+      this.fx.floatIcon(PTS.notes.x + Math.random() * 12, PTS.notes.y, Math.random() < 0.5 ? 'note' : 'note2');
     }
     if (this.musicOn) moving = true;
     // le mode soirée : des étincelles, et tout le monde danse
     if (this.time < this.discoUntil) {
       moving = true;
-      if (Math.random() < 0.25) this.fx.sparkle(32 + Math.random() * 288, 60 + Math.random() * 160, 2, ['#ff6fa8', '#4fb3ff', '#ffd166', '#3ddc97', '#ff8a3d'][Math.floor(Math.random() * 5)]);
+      if (Math.random() < 0.25) this.fx.sparkle(32 + Math.random() * (W - 64), 40 + Math.random() * 220, 2, ['#ff6fa8', '#4fb3ff', '#ffd166', '#3ddc97', '#ff8a3d'][Math.floor(Math.random() * 5)]);
     }
     for (const until of this.wiggles.values()) if (until > this.time) moving = true;
     for (const a of this.actors.values()) {
       if (a.id.startsWith('demo-') && this.time - a.actAt > 2 + Math.random() * 3) {
-        const kinds: ActKind[] = a.role === 'recherche' ? ['search', 'web'] : a.role === 'code' ? ['write', 'bash'] : a.role === 'analyse' ? ['read', 'write'] : ['write', 'edit'];
+        const kinds: ActKind[] = a.role === 'recherche' ? ['search', 'web'] : a.role === 'code' ? ['write', 'bash'] : a.role === 'qualite' ? ['read', 'bash'] : a.role === 'son' || a.role === 'montage' ? ['bash', 'write'] : ['write', 'edit'];
         a.act = kinds[Math.floor(Math.random() * kinds.length)];
         a.actAt = this.time;
         this.fx.floatIcon(a.x, a.y - 24, iconFor(a.act));
@@ -482,7 +482,7 @@ export class World {
   // ── Les petits gestes du bureau (quand on clique sur les objets) ──
   neonNext() {
     this.neonIndex = (this.neonIndex + 1) % 5;
-    this.fx.sparkle(97 + 12, 11 + 11, 10, '#ffffff');
+    this.fx.sparkle(NEON.x + 12, NEON.y + 11, 10, '#ffffff');
   }
 
   wiggle(id: string, x: number, y: number) {
@@ -491,13 +491,13 @@ export class World {
   }
 
   coffee() {
-    for (let i = 0; i < 12; i++) this.fx.steam(16 * T + 9 + Math.random() * 6, 13 * T + 4 - Math.random() * 4);
-    this.fx.floatIcon(16 * T + 12, 13 * T - 2, 'coffee');
+    for (let i = 0; i < 12; i++) this.fx.steam(PTS.steam.x - 2 + Math.random() * 6, PTS.steam.y - Math.random() * 4);
+    this.fx.floatIcon(PTS.steam.x + 1, PTS.steam.y - 6, 'coffee');
   }
 
   cooler() {
-    for (let i = 0; i < 6; i++) this.fx.sparkle(9 * T + 8, 3 * T + 4 - i, 1, '#bfe3ff');
-    this.fx.floatIcon(9 * T + 8, 3 * T - 4, 'drop');
+    for (let i = 0; i < 6; i++) this.fx.sparkle(PTS.cooler.x, PTS.cooler.y - i, 1, '#bfe3ff');
+    this.fx.floatIcon(PTS.cooler.x, PTS.cooler.y - 8, 'drop');
   }
 
   toggleLamp(id: string) {
@@ -508,12 +508,12 @@ export class World {
   disco(seconds = 16) {
     this.discoUntil = this.time + seconds;
     for (const a of this.actors.values()) a.cheerUntil = this.discoUntil;
-    this.fx.rain(22 * T, 70);
+    this.fx.rain(W, 70);
   }
 
   /** Pour la visite guidée sans mission : un agent par coin, assis à son bureau, qui travaille. */
   demoTeam(on: boolean) {
-    const demo: [string, Role, string][] = [['demo-1', 'recherche', 'Iris'], ['demo-2', 'recherche', 'Hugo'], ['demo-3', 'code', 'Ada'], ['demo-4', 'design', 'Frida'], ['demo-5', 'redaction', 'Colette'], ['demo-6', 'analyse', 'Marie']];
+    const demo: [string, Role, string][] = [['demo-1', 'recherche', 'Iris'], ['demo-2', 'redaction', 'Colette'], ['demo-3', 'montage', 'Méliès'], ['demo-4', 'montage', 'Varda'], ['demo-5', 'son', 'Ravel'], ['demo-6', 'design', 'Frida'], ['demo-7', 'social', 'Mila'], ['demo-8', 'code', 'Ada'], ['demo-9', 'qualite', 'Vera']];
     if (on) {
       for (const [id, role, name] of demo) {
         if (this.actors.has(id)) continue;

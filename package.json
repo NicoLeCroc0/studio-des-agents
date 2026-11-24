@@ -1,6 +1,6 @@
 {
   "name": "studio-des-agents",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Le Studio des agents : montage vidéo, retouche photo et design par une équipe d'agents Claude Code, dans un studio en pixel art. Adapté du Bureau des agents de VibesMoney (MIT).",
   "license": "MIT",
@@ -20,7 +20,10 @@
     "dev": "node scripts/dev.ts",
     "build": "vite build",
     "serve": "node server/index.ts",
-    "check": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p server/tsconfig.json"
+    "check": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p server/tsconfig.json",
+    "mot-de-passe": "node server/acces.ts",
+    "service:mac": "bash scripts/service-mac.sh",
+    "service:windows": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/service-windows.ps1"
   },
   "dependencies": {
     "@fontsource-variable/plus-jakarta-sans": "^5.3.0",

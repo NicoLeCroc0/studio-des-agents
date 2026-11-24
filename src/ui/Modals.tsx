@@ -137,6 +137,7 @@ export function History() {
                 </span>
               </div>
               <div className="row">
+                {m.status !== 'working' && <button className="btn small primary" title="La rouvrir pour demander des retouches à Max" onClick={() => { sfx('click'); close(); send({ t: 'resume', missionId: m.id }); }}>↩ Reprendre</button>}
                 <button className="btn small" title="Rejoue la mission (sans relancer l’équipe) : parfait pour filmer" onClick={() => { sfx('click'); close(); send({ t: 'replay', missionId: m.id }); }}>▶ Rejouer</button>
                 <button className="btn small ghost" onClick={() => send({ t: 'open', missionId: m.id })}>Dossier</button>
               </div>

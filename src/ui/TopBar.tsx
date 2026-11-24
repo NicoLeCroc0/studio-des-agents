@@ -65,7 +65,7 @@ export function TopBar() {
         <Logo />
         <div>
           <b>Le Studio des agents</b>
-          <span>{connection === 'demo' ? 'Démo' : 'recherche · vidéo · photo · design'}</span>
+          <span>{connection === 'demo' ? 'Démo' : 'montage · son · effets · réseaux'}</span>
         </div>
       </div>
 
@@ -109,7 +109,8 @@ export function TopBar() {
         <button className="icon-btn" title="Visite guidée : Max présente son bureau (T)" onClick={() => void startTour()}>🎤</button>
         <button className="icon-btn" title="Toute l’équipe : les métiers, leurs outils, l’historique" onClick={() => { sfx('open'); useOffice.setState({ modal: { kind: 'team' } }); }}>👥</button>
         <button className={`icon-btn ${musicOn ? 'on' : ''}`} title="Le jukebox (J)" onClick={() => { sfx('open'); useOffice.setState({ modal: { kind: 'jukebox' } }); }}>{musicOn ? '🎶' : '🎵'}</button>
-        <button className="icon-btn" title="Missions précédentes (H)" onClick={() => { sfx('open'); useOffice.setState({ historyOpen: true }); }}>🗂️</button>
+        <button className="icon-btn phone-only" title="Le menu : tes médias, tes missions, les rendus" onClick={() => { sfx('open'); useOffice.setState({ menuOpen: true }); }}>☰</button>
+        <button className="icon-btn phone-keep" title="Missions précédentes (H)" onClick={() => { sfx('open'); useOffice.setState({ historyOpen: true }); }}>🗂️</button>
         <button className="icon-btn" title={`L’heure du bureau : ${TOD_LABEL[tod]} (N)`} onClick={() => { sfx('click'); const n = TOD_NEXT[tod]; useOffice.setState({ tod: n }); savePref('tod', n); }}>{TOD_ICON[tod]}</button>
         <button className="icon-btn" title={sound ? 'Couper le son (M)' : 'Remettre le son (M)'} onClick={() => toggle('sound')}>{sound ? '🔊' : '🔇'}</button>
         <button className={`icon-btn ${vertical ? 'on' : ''}`} title="Cadre vertical 9:16, pour filmer un reel (V)" onClick={() => toggle('vertical')}>📱</button>

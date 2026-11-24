@@ -124,8 +124,9 @@ function drawAccessory(g: CanvasRenderingContext2D, L: Look, dir: Dir, bob: numb
       rect(g, 7, 1 + y, 6, 1, '#e3cf9e');
       break;
     }
-    case 'code': { // un casque audio
-      const c = ROLES.code.color;
+    case 'son':
+    case 'montage': { // un casque audio
+      const c = ROLES[L.role].color;
       rect(g, 4, 3 + y, 12, 1, '#2b2836');
       if (dir === 'left' || dir === 'right') {
         rect(g, 7, 6 + y, 3, 4, c);
@@ -138,7 +139,8 @@ function drawAccessory(g: CanvasRenderingContext2D, L: Look, dir: Dir, bob: numb
       }
       break;
     }
-    case 'analyse': { // des lunettes, sur la visière
+    case 'code':
+    case 'qualite': { // des lunettes, sur la visière
       if (dir === 'down') {
         const f = '#f3f1f8';
         for (const x of [6, 10]) {
@@ -154,6 +156,7 @@ function drawAccessory(g: CanvasRenderingContext2D, L: Look, dir: Dir, bob: numb
       }
       break;
     }
+    case 'social':
     case 'redaction': { // un crayon sur l'oreille
       if (dir === 'down') {
         px(g, 16, 3 + y, '#ff8fb1');

@@ -28,8 +28,10 @@ const STATUS: Record<AgentView['status'], string> = { working: 'Au travail', rep
 
 export function Panel() {
   const mission = useOffice((s) => s.mission);
+  const menuOpen = useOffice((s) => s.menuOpen);
   return (
-    <aside className="panel">
+    <aside className={`panel ${menuOpen ? 'open' : ''}`}>
+      {menuOpen && <button className="btn panel-close" onClick={() => useOffice.setState({ menuOpen: false })}>← Retour au studio</button>}
       {mission ? (
         <>
           <PlanSection />
@@ -53,9 +55,10 @@ function Welcome() {
         <h3>Comment ça marche</h3>
         <ol className="steps">
           <li><b>Tu dis à Max ce que tu veux</b>, au clavier ou à la voix. Pour une vidéo ou des photos, dépose-les d’abord dans « Mes médias » (bouton plus bas).</li>
-          <li><b>Il fait le plan et appelle l’équipe</b> : chercheurs, développeur, rédacteur, analyste, monteurs vidéo, retoucheurs photo, designer et scénariste, plusieurs en même temps.</li>
+          <li><b>Il fait le plan et envoie le travail sur les îles</b> : veille, scripts, montage, son, graphisme, réseaux, code. Plusieurs agents en même temps.</li>
+          <li><b>Le contrôle qualité vérifie tout</b> avant que Max te le rende.</li>
           <li><b>Tu les regardes bosser</b>, en vrai : chaque bulle, c’est ce que l’agent fait à cet instant.</li>
-          <li><b>Ils te rendent le travail</b> : les fichiers arrivent dans « Les rendus » et dans ton dossier.</li>
+          <li><b>Ils te rendent le travail</b> : les fichiers arrivent dans « Les rendus ». Tu peux demander des retouches, et dire « je valide » : Max le range dans ta Mémoire pour la prochaine fois.</li>
         </ol>
         <p className="small muted">Ce sont de vrais agents Claude Code, qui tournent avec ton abonnement.</p>
       </section>
@@ -70,11 +73,13 @@ function Welcome() {
           <h3>Ton studio</h3>
           <p className="small muted path">{tilde(dir)}</p>
           <div className="row">
-            <button className="btn small" onClick={() => send({ t: 'open_root', media: true })}>📁 Mes médias</button>
-            <button className="btn small" onClick={() => send({ t: 'open_root' })}>Ouvrir le dossier</button>
-            <button className="btn small" onClick={() => send({ t: 'open_root', rules: true })}>Le règlement du studio</button>
+            <button className="btn small desk-only" onClick={() => send({ t: 'open_root', media: true })}>📁 Mes médias</button>
+            <UploadButton />
+            <button className="btn small desk-only" onClick={() => send({ t: 'open_root' })}>Ouvrir le dossier</button>
+            <button className="btn small desk-only" onClick={() => send({ t: 'open_root', rules: true })}>Le règlement du studio</button>
+            <button className="btn small desk-only" onClick={() => send({ t: 'open_root', memory: true })}>🧠 Ma mémoire</button>
           </div>
-          <p className="small muted">« Mes médias » : dépose-y tes vidéos, photos, logos et musiques. L’équipe les lit sans jamais les modifier.</p>
+          <p className="small muted">« Mes médias » : dépose-y tes vidéos, photos, logos et musiques. L’équipe les lit sans jamais les modifier. « Ma mémoire » : ta charte et tout ce que tu as validé, que l’équipe réutilise.</p>
           <p className="small muted">Le règlement, c’est ton style (couleurs, polices, ton) : Max le lit avant chaque mission.</p>
         </section>
       )}
@@ -85,8 +90,9 @@ function Welcome() {
             <div key={m.id} className="mini-mission">
               <div><b>{m.title}</b><span className="small muted">{fmtDate(m.createdAt)} · {fmtDuration(m.workMs)} · {m.files.length} rendu{m.files.length > 1 ? 's' : ''}</span></div>
               <div className="row">
+                <button className="btn small primary" title="La rouvrir pour demander des retouches à Max" onClick={() => { sfx('click'); send({ t: 'resume', missionId: m.id }); }}>Reprendre</button>
                 <button className="btn small" onClick={() => { sfx('click'); send({ t: 'replay', missionId: m.id }); }}>Rejouer</button>
-                <button className="btn small ghost" onClick={() => send({ t: 'open', missionId: m.id })}>Dossier</button>
+                <button className="btn small ghost desk-only" onClick={() => send({ t: 'open', missionId: m.id })}>Dossier</button>
               </div>
             </div>
           ))}
@@ -210,5 +216,34 @@ function FeedSection() {
         ))}
       </div>
     </section>
+  );
+}
+
+/** Envoyer des vidéos ou des photos dans « Médias », depuis n'importe quel appareil (pratique sur iPhone). */
+function UploadButton() {
+  const [busy, setBusy] = useState<string | null>(null);
+  const toast = useOffice((s) => s.toast);
+  const send1 = (f: File) => new Promise<void>((resolve, reject) => {
+    const x = new XMLHttpRequest();
+    x.open('POST', `/envoi?nom=${encodeURIComponent(f.name)}`);
+    x.setRequestHeader('X-Studio', '1');
+    x.upload.onprogress = (e) => { if (e.lengthComputable) setBusy(`${f.name} · ${Math.round((e.loaded / e.total) * 100)} %`); };
+    x.onload = () => (x.status === 200 ? resolve() : reject(new Error(x.responseText || `Erreur ${x.status}`)));
+    x.onerror = () => reject(new Error('La connexion a coupé.'));
+    x.send(f);
+  });
+  return (
+    <label className="btn small" title="Envoie des vidéos, photos ou musiques depuis cet appareil dans « Mes médias »">
+      {busy ? `📤 ${busy}` : '📤 Envoyer des fichiers'}
+      <input type="file" multiple hidden disabled={!!busy} onChange={async (e) => {
+        const files = [...(e.target.files ?? [])];
+        e.target.value = '';
+        try {
+          for (const f of files) await send1(f);
+        } catch (err) {
+          toast('error', err instanceof Error ? err.message : String(err));
+        } finally { setBusy(null); }
+      }} />
+    </label>
   );
 }

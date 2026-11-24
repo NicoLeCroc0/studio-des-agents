@@ -1,7 +1,7 @@
 // La mémoire du bureau, côté navigateur : la mission en cours, l'équipe, le plan, les rendus, ce que
 // dit Max. Chaque événement venu du pont est rangé ici, puis transmis au moteur du jeu (les robots).
 import { create } from 'zustand';
-import { countStats, emptyStats } from '../../shared/activity.ts';
+import { countStats, emptyStats, fixRole } from '../../shared/activity.ts';
 import type {
   ActKind, ClaudeInfo, ClientMsg, FileInfo, MissionInfo, MissionStats, OfficeEvent, PlanItem, Quota, Role, ServerMsg, Settings, TeamEntry, VersionInfo,
 } from '../../shared/protocol.ts';
@@ -98,6 +98,8 @@ interface S {
   /** la visite guidée en cours (le texte que Max dit) */
   tour: { step: number; text: string } | null;
   historyOpen: boolean;
+  /** sur le téléphone : le panneau (médias, missions, rendus) ouvert en plein écran */
+  menuOpen: boolean;
   settingsOpen: boolean;
   vertical: boolean;
   /** écran en hauteur (téléphone) : même mise en page que le cadre vertical */
@@ -158,6 +160,7 @@ export const useOffice = create<S>((set, get) => ({
   cameraAuto: pref('cameraAuto', true),
   tour: null,
   historyOpen: false,
+  menuOpen: false,
   settingsOpen: false,
   vertical: pref('vertical', false),
   portrait: typeof window !== 'undefined' && window.innerWidth / Math.max(1, window.innerHeight) < 0.8,
@@ -235,6 +238,8 @@ export const useOffice = create<S>((set, get) => ({
   },
 
   apply: (ev, at, live) => {
+    // une mission enregistrée avant les îles : chaque agent retrouve son île
+    if (ev.k === 'hire') ev = { ...ev, role: fixRole(ev.role, ev.type) };
     const s = get();
     const feed = (who: string, text: string, kind: FeedLine['kind']) => {
       const line: FeedLine = { id: ++feedId, at, who, text, kind };

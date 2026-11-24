@@ -75,8 +75,8 @@ function sprite(pose: CatPose, frame: number, right: boolean) {
 }
 
 /** Le canapé (là où il dort) et les endroits où il aime traîner. */
-const SOFA = { x: 3 * T + 4, y: 14 * T + 4, from: [3, 13] as Tile };
-const HAUNTS: Tile[] = [[9, 10], [12, 10], [7, 13], [14, 13], [17, 13], [10, 9], [3, 9], [18, 9], [8, 6]];
+const SOFA = { x: 11 * T + 4, y: 17 * T + 4, from: [11, 16] as Tile };
+const HAUNTS: Tile[] = [[12, 14], [15, 14], [13, 16], [7, 1], [10, 7], [17, 7], [20, 13], [7, 13], [16, 16], [10, 9]];
 
 export class Cat {
   x = SOFA.x;
@@ -131,7 +131,7 @@ export class Cat {
   get frame() { return Math.floor(this.t * 6) % 2; }
 
   /** Sur le canapé, il passe devant (sinon le dossier le cacherait). */
-  get sortY() { return this.pose === 'sleep' && !this.path.length && Math.abs(this.x - SOFA.x) < 2 ? 14 * T + 15 : this.y; }
+  get sortY() { return this.pose === 'sleep' && !this.path.length && Math.abs(this.x - SOFA.x) < 2 ? 17 * T + 15 : this.y; }
 
   draw(g: CanvasRenderingContext2D) {
     const s = sprite(this.pose, this.frame, this.right);

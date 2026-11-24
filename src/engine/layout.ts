@@ -1,11 +1,13 @@
-// Le plan du bureau : une grille de 22 × 16 cases de 16 pixels, vue de dessus (en 3/4, comme dans
-// les jeux en pixel art). Chaque métier a son coin, ses bureaux et ses chaises ; Max est au centre,
-// devant le tableau du plan ; la porte est en bas, c'est par là qu'arrive l'équipe.
+// Le plan de l'archipel : une grille de 28 × 19 cases de 16 pixels, vue de dessus (en 3/4, comme dans
+// les jeux en pixel art). Chaque spécialité a son île, avec ses bureaux et ses chaises ; au centre,
+// l'île cerveau de Max (le tableau du plan, son bureau et le contrôle qualité). Des ponts lumineux,
+// comme des neurones, relient les îles entre elles et au cerveau. En bas, le port : c'est par son
+// ponton qu'arrive l'équipe, et c'est là qu'on se pose (café, jukebox, canapé du chat).
 import type { Role } from '../../shared/protocol.ts';
 
 export const T = 16;
-export const COLS = 22;
-export const ROWS = 16;
+export const COLS = 28;
+export const ROWS = 19;
 export const W = COLS * T;
 export const H = ROWS * T;
 
@@ -37,17 +39,56 @@ export interface Seat {
   deskId: string;
 }
 
-export interface Zone { role: Role; label: string; x: number; y: number; w: number; h: number }
+/** Une île : sa terre (en cases), et son nom. */
+export interface Island { id: string; role: Role | 'port'; label: string; x: number; y: number; w: number; h: number }
 
-/** Les coins du bureau (le tapis au sol et l'étiquette). */
-export const ZONES: Zone[] = [
-  { role: 'recherche', label: 'Recherche', x: 1, y: 3, w: 6, h: 6 },
-  { role: 'code', label: 'Atelier code', x: 15, y: 3, w: 6, h: 3 },
-  { role: 'design', label: 'Studio design', x: 15, y: 6, w: 6, h: 3 },
-  { role: 'redaction', label: 'Rédaction', x: 1, y: 10, w: 6, h: 3 },
-  { role: 'analyse', label: 'Analyse', x: 15, y: 10, w: 4, h: 3 },
-  { role: 'chef', label: 'Max, chef de projet', x: 9, y: 6, w: 4, h: 3 },
+export const ISLANDS: Island[] = [
+  { id: 'veille', role: 'recherche', label: 'VEILLE', x: 1, y: 1, w: 7, h: 5 },
+  { id: 'scripts', role: 'redaction', label: 'SCRIPTS', x: 10, y: 1, w: 8, h: 5 },
+  { id: 'son', role: 'son', label: 'SON · SFX', x: 20, y: 1, w: 7, h: 5 },
+  { id: 'montage', role: 'montage', label: 'MONTAGE · VFX', x: 1, y: 7, w: 7, h: 5 },
+  { id: 'cerveau', role: 'chef', label: 'LE CERVEAU', x: 10, y: 7, w: 8, h: 5 },
+  { id: 'graphisme', role: 'design', label: 'GRAPHISME', x: 20, y: 7, w: 7, h: 5 },
+  { id: 'code', role: 'code', label: 'CODE · DATA', x: 1, y: 13, w: 7, h: 5 },
+  { id: 'port', role: 'port', label: 'LE PORT', x: 10, y: 13, w: 8, h: 5 },
+  { id: 'reseaux', role: 'social', label: 'RÉSEAUX', x: 20, y: 13, w: 7, h: 5 },
 ];
+
+/**
+ * Les ponts (les « neurones ») : des cases de passage au-dessus de l'eau.
+ * a et b : les îles reliées (pour les faire briller quand l'une d'elles travaille).
+ */
+export interface Bridge { a: string; b: string; tiles: [number, number][]; dir: 'h' | 'v' }
+
+export const BRIDGES: Bridge[] = [
+  { a: 'veille', b: 'scripts', tiles: [[8, 3], [9, 3]], dir: 'h' },
+  { a: 'scripts', b: 'son', tiles: [[18, 3], [19, 3]], dir: 'h' },
+  { a: 'scripts', b: 'cerveau', tiles: [[17, 6]], dir: 'v' },
+  { a: 'veille', b: 'montage', tiles: [[7, 6]], dir: 'v' },
+  { a: 'son', b: 'graphisme', tiles: [[20, 6]], dir: 'v' },
+  { a: 'montage', b: 'cerveau', tiles: [[8, 9], [9, 9]], dir: 'h' },
+  { a: 'cerveau', b: 'graphisme', tiles: [[18, 9], [19, 9]], dir: 'h' },
+  { a: 'cerveau', b: 'port', tiles: [[13, 12], [14, 12]], dir: 'v' },
+  { a: 'montage', b: 'code', tiles: [[7, 12]], dir: 'v' },
+  { a: 'graphisme', b: 'reseaux', tiles: [[20, 12]], dir: 'v' },
+  { a: 'code', b: 'port', tiles: [[8, 14], [9, 14]], dir: 'h' },
+  { a: 'port', b: 'reseaux', tiles: [[18, 14], [19, 14]], dir: 'h' },
+  // le ponton du port : c'est par là qu'arrive l'équipe
+  { a: 'port', b: 'mer', tiles: [[13, 18], [14, 18]], dir: 'v' },
+];
+
+export interface Zone { role: Role; label: string; x: number; y: number; w: number; h: number; /** l'écriteau (en pixels) */ sx: number; sy: number }
+
+/** Les métiers et leur écriteau (posé sur l'eau, au-dessus de leur île). */
+export const ZONES: Zone[] = ISLANDS.filter((i) => i.role !== 'port' && i.role !== 'chef').map((i) => ({
+  role: i.role as Role, label: i.label, x: i.x, y: i.y, w: i.w, h: i.h,
+  sx: i.x * T + 2, sy: i.y * T - 12,
+}));
+// l'île cerveau : Max, et le contrôle qualité (leurs écriteaux sous l'île, de part et d'autre du pont)
+ZONES.push({ role: 'chef', label: 'CERVEAU', x: 10, y: 7, w: 8, h: 5, sx: 10 * T + 1, sy: 12 * T + 3 });
+ZONES.push({ role: 'qualite', label: 'QUALITÉ', x: 15, y: 10, w: 3, h: 2, sx: 15 * T + 2, sy: 12 * T + 3 });
+
+export const islandOf = (role: Role) => ISLANDS.find((i) => i.role === role)?.id ?? (role === 'qualite' ? 'cerveau' : 'port');
 
 const furn: Furn[] = [];
 const seats: Seat[] = [];
@@ -59,78 +100,94 @@ function desk(role: Role, tx: number, ty: number) {
   seats.push({ id: `seat-${id}`, role, tile: [tx, ty - 1], x: (tx + 1) * T, y: ty * T - 1, deskId: id });
 }
 
-// Recherche : deux rangées de trois bureaux (c'est le coin le plus demandé, un chercheur par sujet)
-for (const ty of [5, 8]) for (const tx of [1, 3, 5]) desk('recherche', tx, ty);
-// Atelier code
-for (const tx of [15, 17, 19]) desk('code', tx, 5);
-// Studio design
-for (const tx of [15, 17]) desk('design', tx, 8);
-// Rédaction
-for (const tx of [1, 3, 5]) desk('redaction', tx, 12);
-// Analyse
-for (const tx of [15, 17]) desk('analyse', tx, 12);
+// Six bureaux par île (deux rangées de trois). Une colonne reste libre pour passer et rejoindre les ponts.
+for (const isl of ISLANDS) {
+  if (isl.role === 'port' || isl.role === 'chef') continue;
+  const left = isl.x === 1 ? 1 : isl.x === 10 ? 11 : 21;
+  for (const dy of [2, 4]) for (const k of [0, 2, 4]) desk(isl.role, left + k, isl.y + dy);
+}
 
-// Le bureau du chef, face à toi
-furn.push({ id: 'chefDesk', kind: 'chefDesk', tx: 9, ty: 7, w: 4, h: 1, role: 'chef' });
-furn.push({ id: 'chefChair', kind: 'chefChair', tx: 10, ty: 6, w: 0, h: 0, role: 'chef' });
-export const CHEF_SEAT: Seat = { id: 'seat-chef', role: 'chef', tile: [10, 6], x: 11 * T, y: 7 * T - 1, deskId: 'chefDesk' };
+// L'île cerveau : Max face à toi, le tableau du plan derrière lui, et le contrôle qualité à côté
+furn.push({ id: 'chefDesk', kind: 'chefDesk', tx: 12, ty: 9, w: 4, h: 1, role: 'chef' });
+furn.push({ id: 'chefChair', kind: 'chefChair', tx: 13, ty: 8, w: 0, h: 0, role: 'chef' });
+export const CHEF_SEAT: Seat = { id: 'seat-chef', role: 'chef', tile: [13, 8], x: 14 * T, y: 9 * T - 1, deskId: 'chefDesk' };
+desk('qualite', 10, 11);
+desk('qualite', 16, 11);
 
-// Le matériel et la déco
-furn.push({ id: 'rack', kind: 'rack', tx: 14, ty: 3, w: 1, h: 1 });
-furn.push({ id: 'printer', kind: 'printer', tx: 12, ty: 4, w: 1, h: 1 });
-furn.push({ id: 'cooler', kind: 'cooler', tx: 9, ty: 4, w: 1, h: 1 });
-furn.push({ id: 'easel', kind: 'easel', tx: 19, ty: 8, w: 1, h: 1 });
-furn.push({ id: 'plant-design', kind: 'plantBig', tx: 20, ty: 8, w: 1, h: 1, seed: 3 });
-furn.push({ id: 'plant-entry-l', kind: 'plantTall', tx: 8, ty: 14, w: 1, h: 1, seed: 5 });
-furn.push({ id: 'plant-entry-r', kind: 'plantBig', tx: 13, ty: 14, w: 1, h: 1, seed: 9 });
-furn.push({ id: 'plant-analyse', kind: 'plantTall', tx: 20, ty: 11, w: 1, h: 1, seed: 11 });
-furn.push({ id: 'sofa', kind: 'sofa', tx: 2, ty: 14, w: 3, h: 1 });
-furn.push({ id: 'tableLow', kind: 'tableLow', tx: 2, ty: 13, w: 2, h: 0 });
-furn.push({ id: 'lamp', kind: 'lamp', tx: 1, ty: 14, w: 1, h: 1 });
-furn.push({ id: 'shelf', kind: 'shelf', tx: 5, ty: 14, w: 2, h: 1 });
-furn.push({ id: 'coffee', kind: 'coffee', tx: 16, ty: 14, w: 3, h: 1 });
-furn.push({ id: 'jukebox', kind: 'jukebox', tx: 14, ty: 14, w: 2, h: 1 });
-furn.push({ id: 'plant-coffee', kind: 'plantBig', tx: 19, ty: 14, w: 1, h: 1, seed: 21 });
-furn.push({ id: 'lamp-r', kind: 'lamp', tx: 20, ty: 14, w: 1, h: 1 });
-furn.push({ id: 'bin', kind: 'bin', tx: 7, ty: 12, w: 0, h: 0 });
+// Le port : le salon de l'équipe
+furn.push({ id: 'jukebox', kind: 'jukebox', tx: 10, ty: 13, w: 2, h: 1 });
+furn.push({ id: 'coffee', kind: 'coffee', tx: 15, ty: 13, w: 3, h: 1 });
+furn.push({ id: 'cooler', kind: 'cooler', tx: 12, ty: 15, w: 1, h: 1 });
+furn.push({ id: 'printer', kind: 'printer', tx: 16, ty: 15, w: 1, h: 1 });
+furn.push({ id: 'rack', kind: 'rack', tx: 17, ty: 15, w: 1, h: 1 });
+furn.push({ id: 'sofa', kind: 'sofa', tx: 10, ty: 17, w: 3, h: 1 });
+furn.push({ id: 'tableLow', kind: 'tableLow', tx: 10, ty: 16, w: 2, h: 0 });
+furn.push({ id: 'lamp', kind: 'lamp', tx: 10, ty: 15, w: 1, h: 1 });
+furn.push({ id: 'shelf', kind: 'shelf', tx: 15, ty: 17, w: 2, h: 1 });
+furn.push({ id: 'lamp-r', kind: 'lamp', tx: 17, ty: 17, w: 1, h: 1 });
+furn.push({ id: 'bin', kind: 'bin', tx: 17, ty: 16, w: 0, h: 0 });
 
 export const FURNITURE = furn;
 export const SEATS = seats;
 
+const px = (t: [number, number]) => ({ x: t[0] * T + 8, y: t[1] * T + 13 });
+
 /** Les points de passage importants. Les pieds d'un robot debout sur une case : (x*16+8, y*16+13). */
 export const SPOTS = {
-  door: [10, 15] as [number, number],
-  doorOut: { x: 11 * T, y: 16 * T + 6 },
+  door: [13, 17] as [number, number],
+  doorOut: { x: 14 * T, y: H + 6 },
   /** là où Max t'accueille, et où il te présente le rendu */
-  reception: [10, 12] as [number, number],
-  receptionPx: { x: 11 * T, y: 12 * T + 13 },
+  reception: [13, 15] as [number, number],
+  receptionPx: { x: 14 * T, y: 15 * T + 13 },
   /** devant le tableau du plan */
-  board: [10, 3] as [number, number],
-  boardPx: { x: 11 * T, y: 3 * T + 13 },
+  board: [12, 8] as [number, number],
+  boardPx: px([12, 8]),
   /** devant le bureau du chef : on y rend son rapport */
-  deliver: [[10, 8], [11, 8], [9, 8], [12, 8], [10, 9], [11, 9]] as [number, number][],
-  /** pour ceux qui n'ont pas de bureau libre */
-  overflow: [[7, 4], [8, 7], [13, 6], [7, 10], [14, 10], [8, 11], [13, 11], [7, 13]] as [number, number][],
+  deliver: [[12, 10], [13, 10], [14, 10], [15, 10], [12, 11], [15, 11]] as [number, number][],
+  /** pour ceux qui n'ont pas de bureau libre : sur le port et au bord des îles */
+  overflow: [[12, 14], [15, 14], [13, 16], [14, 16], [7, 1], [10, 1], [17, 1], [20, 1], [7, 7], [20, 7], [7, 13], [20, 13], [10, 7], [14, 14]] as [number, number][],
 };
 
-/** Le tableau du plan, accroché au mur du fond (en pixels). */
-export const BOARD = { x: 128, y: 7, w: 96, h: 35 };
-export const WINDOWS = [{ x: 22, y: 8, w: 66, h: 32 }, { x: 264, y: 8, w: 66, h: 32 }];
-export const NEON = { x: 97, y: 11 };
-export const CLOCK = { x: 232, y: 13 };
-export const POSTER = { x: 252, y: 12, w: 10, h: 14 };
-export const DOOR = { x: 160, y: 228, w: 32, h: 28 };
+/** Le tableau du plan : un grand écran posé à l'arrière de l'île cerveau (en pixels). */
+export const BOARD = { x: 11 * T, y: 7 * T - 10, w: 96, h: 35 };
+/** Pas de fenêtres sur l'archipel : c'est la mer (et le ciel qui s'y reflète) qui dit l'heure. */
+export const WINDOWS: { x: number; y: number; w: number; h: number }[] = [];
+/** Le néon VibesMoney, qui flotte entre les îles (en haut à gauche du cerveau). */
+export const NEON = { x: 8 * T + 3, y: 6 * T + 4 };
+export const CLOCK = { x: 18 * T + 9, y: 6 * T + 5 };
+export const POSTER = { x: 8 * T + 11, y: 12 * T + 1, w: 10, h: 14 };
+export const DOOR = { x: 13 * T, y: 18 * T, w: 32, h: 16 };
 
-/** La grille des cases où l'on peut marcher. */
+/** Les endroits où l'on fait quelque chose (en pixels), dérivés des meubles. */
+const at = (id: string) => FURNITURE.find((f) => f.id === id)!;
+export const PTS = {
+  /** la corbeille des rapports, sur le bureau du chef */
+  inbox: { x: at('chefDesk').tx * T + 52, y: at('chefDesk').ty * T - 2 },
+  printer: { x: at('printer').tx * T + 8, y: at('printer').ty * T - 4 },
+  steam: { x: at('coffee').tx * T + 11, y: (at('coffee').ty - 1) * T + 4 },
+  notes: { x: at('jukebox').tx * T + 10, y: (at('jukebox').ty - 1) * T + 2 },
+  cooler: { x: at('cooler').tx * T + 8, y: (at('cooler').ty - 1) * T + 4 },
+  lampL: { x: at('lamp').tx * T + 8, y: at('lamp').ty * T - 12 },
+  lampR: { x: at('lamp-r').tx * T + 8, y: at('lamp-r').ty * T - 12 },
+  chefLamp: { x: at('chefDesk').tx * T + 12, y: at('chefDesk').ty * T - 6 },
+  chefGlow: { x: CHEF_SEAT.x, y: at('chefDesk').ty * T + 14 },
+  rack: { x: at('rack').tx * T + 4, y: at('rack').ty * T - 10 },
+  /** l'endroit où l'équipe apparaît (le bout du ponton) */
+  beamY: 18 * T + 10,
+  /** le centre de l'archipel */
+  center: { x: 14 * T, y: 9 * T + 8 },
+};
+
+/** La grille des cases où l'on peut marcher : la terre des îles et les ponts. */
 export function walkGrid(): boolean[][] {
   const g: boolean[][] = [];
   for (let y = 0; y < ROWS; y++) {
     g.push([]);
-    for (let x = 0; x < COLS; x++) g[y].push(x >= 1 && x <= 20 && y >= 3 && y <= 14);
+    for (let x = 0; x < COLS; x++) g[y].push(ISLANDS.some((i) => x >= i.x && x < i.x + i.w && y >= i.y && y < i.y + i.h));
   }
-  // la porte
-  g[15][10] = true;
-  g[15][11] = true;
+  for (const b of BRIDGES) for (const [x, y] of b.tiles) g[y][x] = true;
+  // le pied du tableau du plan
+  for (let x = 11; x <= 16; x++) g[7][x] = false;
   for (const f of FURNITURE) {
     for (let y = f.ty; y < f.ty + f.h; y++) for (let x = f.tx; x < f.tx + f.w; x++) if (g[y]?.[x] !== undefined) g[y][x] = false;
   }

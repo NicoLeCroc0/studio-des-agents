@@ -3,7 +3,7 @@
 // arrivant qui passe la porte, la chercheuse qui lit un site, le rapport posé sur le bureau du chef…
 // et régulièrement un plan large, pour voir toute l'équipe travailler en même temps.
 import type { OfficeEvent } from '../../shared/protocol.ts';
-import { BOARD, H, SPOTS, T, W } from './layout.ts';
+import { BOARD, H, PTS, SPOTS, W } from './layout.ts';
 import type { World } from './world.ts';
 
 export class Camera {
@@ -81,16 +81,16 @@ export class Director {
         if (this.free() || ev.items.every((i) => i.status === 'pending')) this.cam.shot(BOARD.x + BOARD.w / 2, BOARD.y + 26, 2.1, 3.2);
         break;
       case 'hire':
-        if (t - this.lastHireShot > 3) { this.cam.shot(11 * T, 13 * T, 1.7, 2.6); this.lastHireShot = t; }
+        if (t - this.lastHireShot > 3) { this.cam.shot(SPOTS.receptionPx.x, SPOTS.receptionPx.y, 1.7, 2.6); this.lastHireShot = t; }
         break;
       case 'act':
         if (ev.who !== 'chef' && this.free() && ev.who !== this.lastWho) this.onActor(ev.who, 1.95, 2.8);
         break;
       case 'report':
-        this.cam.shot(11 * T, 7 * T, 1.8, 2.6);
+        this.cam.shot(PTS.inbox.x - 30, PTS.inbox.y, 1.8, 2.6);
         break;
       case 'file':
-        if (this.free()) this.cam.shot(12 * T + 8, 4 * T, 2.1, 2.2);
+        if (this.free()) this.cam.shot(PTS.printer.x, PTS.printer.y, 2.1, 2.2);
         break;
       case 'ask':
         this.onActor(ev.who, 2.1, 4);

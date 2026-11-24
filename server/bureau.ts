@@ -11,12 +11,33 @@ import { appendFile, copyFile, mkdir, readdir, readFile, rename, stat, unlink, w
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { countStats, emptyStats } from '../shared/activity.ts';
-import type { ClaudeInfo, FileInfo, Logged, MissionInfo, OfficeEvent, Quota, Role, ServerMsg, Settings, TeamEntry, VersionInfo } from '../shared/protocol.ts';
+import { countStats, emptyStats, fixRole } from '../shared/activity.ts';
+import type { ClaudeInfo, FileInfo, Logged, MissionInfo, OfficeEvent, Quota, ServerMsg, Settings, TeamEntry, VersionInfo } from '../shared/protocol.ts';
 import { ClaudeProcess, Normalizer, type ClaudeBinary, type TurnResult } from './claude.ts';
 import { agentsJson, ALWAYS_ALLOWED, chefPrompt, SESSION_TOOLS } from './team.ts';
 
 const RULES_FILE = 'Règlement du studio.md';
+const MEMORY_DIR = 'Mémoire';
+const CHARTE_TEMPLATE = `# Ma charte
+
+Max lit ce fichier avant chaque mission, et le complète quand tu lui dis ce que tu aimes.
+Les travaux que tu valides (« je valide ») sont rangés à côté : scripts/, recettes/, visuels/.
+
+## Mon ton
+<!-- Exemple : tutoiement, énergique, un peu d'humour, jamais de jargon. -->
+
+## Mes formats
+<!-- Exemple : Shorts et Reels de 30 à 45 secondes, en 9:16. Une vidéo YouTube par semaine. -->
+
+## Mon style de montage
+<!-- Exemple : coupes rapides, zoom punch sur les mots forts, sous-titres jaunes en gras au centre. -->
+
+## Mon son
+<!-- Exemple : musique lo-fi discrète, whoosh sur les transitions, voix bien en avant. -->
+
+## Mes couleurs et polices
+<!-- Exemple : noir, jaune #FFD400, blanc. Police des titres : Big Shoulders. -->
+`;
 const MEDIA_DIR = 'Médias';
 
 const RULES_TEMPLATE = `# Le règlement du studio
@@ -38,14 +59,15 @@ sur toi, avec tes mots, comme si tu briefais de nouveaux collègues.
 
 const README = `# Le Studio des agents
 
-Ici travaille ton équipe d'agents IA (des agents Claude Code) : montage vidéo, retouche photo et design.
+Ici travaille ton archipel d'agents IA (des agents Claude Code) : veille, scripts, montage, son, effets, graphisme et réseaux.
 
 - « Médias » : dépose ici tes vidéos, photos, logos et musiques à traiter. L'équipe les lit sans jamais les modifier.
 - « Règlement du studio.md » : ce que l'équipe doit savoir sur toi (ton style, tes couleurs). Max, le chef, le lit avant chaque mission.
+- « Mémoire » : ta charte (charte.md) et tout ce que tu as validé (scripts, recettes, visuels). L'équipe s'en sert à chaque mission.
 - « Missions » : un dossier par mission. Tout ce que l'équipe produit (vidéos, photos retouchées, visuels) y est rangé.
 
-Le dossier caché « .bureau » garde l'état du studio et l'enregistrement de chaque mission, pour la rejouer.
-Tu peux le supprimer pour tout recommencer.
+Le dossier caché « .bureau » garde l'état du studio, l'enregistrement de chaque mission (pour la rejouer ou la reprendre)
+et l'empreinte de ton mot de passe d'accès à distance.
 `;
 
 const DEFAULT_SETTINGS: Settings = { chefModel: 'sonnet', teamModel: 'sonnet', permission: 'auto' };
@@ -110,6 +132,8 @@ export class Bureau {
   readonly dir: string;
   readonly missionsDir: string;
   readonly mediaDir: string;
+  /** la mémoire du studio : la charte et tout ce que tu as validé */
+  readonly memoryDir: string;
   /** le plugin des skills du studio (dans le dépôt), s'il est là */
   readonly skillsDir: string | null;
   private stateFile: string;
@@ -129,6 +153,7 @@ export class Bureau {
     this.dir = dir ?? path.join(os.homedir(), 'Documents', 'Studio des agents');
     this.missionsDir = path.join(this.dir, 'Missions');
     this.mediaDir = path.join(this.dir, MEDIA_DIR);
+    this.memoryDir = path.join(this.dir, MEMORY_DIR);
     const skills = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'studio-skills');
     this.skillsDir = existsSync(path.join(skills, '.claude-plugin', 'plugin.json')) ? skills : null;
     this.stateFile = path.join(this.dir, '.bureau', 'state.json');
@@ -141,6 +166,8 @@ export class Bureau {
     await mkdir(this.recDir, { recursive: true });
     await mkdir(this.missionsDir, { recursive: true });
     await mkdir(this.mediaDir, { recursive: true });
+    for (const sub of ['scripts', 'recettes', 'visuels']) await mkdir(path.join(this.memoryDir, sub), { recursive: true });
+    if (!existsSync(path.join(this.memoryDir, 'charte.md'))) await writeFile(path.join(this.memoryDir, 'charte.md'), CHARTE_TEMPLATE);
     if (fresh) await writeFile(path.join(this.dir, 'LISEZ-MOI.md'), README);
     if (!existsSync(path.join(this.dir, RULES_FILE))) await writeFile(path.join(this.dir, RULES_FILE), RULES_TEMPLATE);
     if (existsSync(this.stateFile)) {
@@ -254,8 +281,8 @@ export class Bureau {
       {
         bin: this.claude.path, cwd: cur.mission.folder, permissionMode: s.permission === 'ask' ? 'acceptEdits' : 'auto',
         model: s.chefModel || undefined, resume, tools: SESSION_TOOLS, allowedTools: ALWAYS_ALLOWED,
-        agents: agentsJson(s), appendSystemPrompt: chefPrompt(readRules(this.dir), this.mediaDir), useApiKey: process.env.BUREAU_USE_API_KEY === '1',
-        pluginDir: this.skillsDir ?? undefined, addDirs: [this.mediaDir],
+        agents: agentsJson(s), appendSystemPrompt: chefPrompt(readRules(this.dir), this.mediaDir, this.memoryDir), useApiKey: process.env.BUREAU_USE_API_KEY === '1',
+        pluginDir: this.skillsDir ?? undefined, addDirs: [this.mediaDir, this.memoryDir],
       },
       (m) => {
         if (cur.live?.proc !== proc) return; // un ancien processus qui parle encore
@@ -438,7 +465,7 @@ export class Bureau {
         const ev = l.ev;
         if (ev.k === 'hire') {
           byId.set(ev.id, {
-            missionId: m.id, missionTitle: m.title, at: l.at, id: ev.id, name: ev.name, role: ev.role as Role, task: ev.task,
+            missionId: m.id, missionTitle: m.title, at: l.at, id: ev.id, name: ev.name, role: fixRole(ev.role, ev.type), task: ev.task,
             status: 'working', tools: 0, tokens: 0, ms: 0, report: '',
           });
         } else if (ev.k === 'report') {
@@ -470,6 +497,30 @@ export class Bureau {
     l.proc.answerPermission(requestId, allow, l.norm.inputOf(requestId));
     l.norm.forgetRequest(requestId);
     this.record(cur, { k: 'ask_done', requestId, allow });
+  }
+
+  /**
+   * Reprendre une ancienne mission : elle redevient la mission en cours, avec tout son historique.
+   * Il suffit ensuite de parler à Max pour demander des retouches : il reprend la même séance.
+   */
+  async resume(missionId: string) {
+    if (this.current?.mission.id === missionId) return;
+    if (this.current?.mission.status === 'working') throw new Error('L’équipe est déjà sur une mission. Attends qu’elle la rende, ou arrête-la.');
+    const { mission, log } = await this.replay(missionId);
+    if (!existsSync(mission.folder)) throw new Error('Le dossier de cette mission a été déplacé ou supprimé.');
+    if (this.current) this.close();
+    const names = new Set<string>();
+    let lastChefText = '';
+    for (const l of log) {
+      if (l.ev.k === 'hire') names.add(l.ev.name);
+      if (l.ev.k === 'say' && l.ev.who === 'chef') lastChefText = l.ev.text;
+    }
+    const cur: Current = {
+      mission, log, live: null, names, watcher: null, fileTimers: new Map(), idleTimer: null,
+      busySince: null, stopAsked: false, lastChefText,
+    };
+    this.current = cur;
+    this.watch(cur);
   }
 
   /** On range la mission (fin de journée) : le bureau est prêt pour la suivante. */
@@ -504,8 +555,8 @@ export class Bureau {
   }
 
   /** Ouvre le dossier du bureau, ou son règlement (dans l'éditeur de texte par défaut). */
-  openRoot(rules: boolean, media = false) {
-    const target = rules ? path.join(this.dir, RULES_FILE) : media ? this.mediaDir : this.dir;
+  openRoot(rules: boolean, media = false, memory = false) {
+    const target = rules ? path.join(this.dir, RULES_FILE) : media ? this.mediaDir : memory ? this.memoryDir : this.dir;
     if (rules && !existsSync(target)) writeFileSync(target, RULES_TEMPLATE);
     const opener = process.platform === 'darwin' ? 'open' : process.platform === 'win32' ? 'explorer' : 'xdg-open';
     execFile(opener, rules && process.platform === 'darwin' ? ['-t', target] : [target], () => {});

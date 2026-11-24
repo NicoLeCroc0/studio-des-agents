@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     port: 5175,
     strictPort: true,
-    proxy: { '/ws': { target: 'ws://127.0.0.1:4850', ws: true }, '/apercu': { target: 'http://127.0.0.1:4850' } },
+    proxy: { '/ws': { target: 'ws://127.0.0.1:4850', ws: true }, '/apercu': { target: 'http://127.0.0.1:4850' }, '/envoi': { target: 'http://127.0.0.1:4850' } },
   },
   build: { outDir: 'dist', chunkSizeWarningLimit: 1500 },
 });

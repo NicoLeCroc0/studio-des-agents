@@ -13,43 +13,74 @@ export interface RoleInfo {
 }
 
 export const ROLES: Record<Role, RoleInfo> = {
-  chef: { label: 'Chef de projet', icon: '⭐', color: '#FF8A3D', type: '', what: 'Il reçoit ta demande, fait le plan, répartit le travail et assemble le rendu.' },
-  recherche: { label: 'Recherche & inspiration', icon: '🔎', color: '#4FB3FF', type: 'chercheur', what: 'Cherche sur internet : concurrents, prix, avis, actualités, tendances, références, musiques et images libres de droits.' },
-  code: { label: 'Code & montage', icon: '💻', color: '#3DDC97', type: 'developpeur', what: 'Le développeur (sites, scripts, automatisations) et le monteur vidéo (découpe, sous-titres, Shorts, Reels).' },
-  design: { label: 'Design', icon: '🎨', color: '#FF6FA8', type: 'designer', what: 'Pages web, logos, bannières, visuels pour les réseaux, miniatures, chartes graphiques.' },
-  redaction: { label: 'Rédaction & scénario', icon: '✍️', color: '#A98BFF', type: 'redacteur', what: 'Le rédacteur (posts, e-mails, articles, rapports) et le scénariste (scripts vidéo, accroches, légendes).' },
-  analyse: { label: 'Analyse & retouche', icon: '📊', color: '#FFC93D', type: 'analyste', what: 'L’analyste (chiffres, tableaux, comparatifs) et le retoucheur photo (lumière, couleurs, recadrage, lots).' },
+  chef: { label: 'Le cerveau (Max)', icon: '🧠', color: '#FF8A3D', type: '', what: 'Max, le chef de projet : il reçoit ta demande, fait le plan, envoie le travail sur les bonnes îles et assemble le rendu.' },
+  recherche: { label: 'Île de la Veille', icon: '🔎', color: '#4FB3FF', type: 'chercheur', what: 'Le chercheur (sujets, faits, sources) et le chasseur de tendances (ce qui marche en ce moment sur TikTok, Reels et Shorts).' },
+  redaction: { label: 'Île des Scripts', icon: '✍️', color: '#A98BFF', type: 'scenariste', what: 'Le scénariste (scripts, accroches, découpage plan par plan) et le rédacteur (légendes, textes, articles).' },
+  montage: { label: 'Île du Montage', icon: '🎬', color: '#3DDC97', type: 'monteur', what: 'Le monteur (découpe, rythme, sous-titres, formats 9:16) et le motion designer (effets visuels qui claquent, titres animés, transitions).' },
+  son: { label: 'Île du Son', icon: '🎧', color: '#FF5FA2', type: 'ingeson', what: 'L’ingé son (musique, voix, mixage, volume) et le bruiteur (SFX : whoosh, pop, impacts, placés sur les coupes).' },
+  design: { label: 'Île du Graphisme', icon: '🎨', color: '#FFC93D', type: 'designer', what: 'Le designer (miniatures, visuels, titres, chartes) et le retoucheur photo (lumière, couleurs, détourage).' },
+  social: { label: 'Île des Réseaux', icon: '📱', color: '#36D1C4', type: 'socialmedia', what: 'Le social media manager (publication, calendrier, hashtags, SEO) et le community manager (réponses aux commentaires, messages, ton).' },
+  code: { label: 'Île du Code', icon: '💻', color: '#7C9CFF', type: 'developpeur', what: 'Le développeur (sites, scripts, automatisations) et l’analyste (chiffres, statistiques de tes vidéos, tableaux).' },
+  qualite: { label: 'Contrôle qualité', icon: '✅', color: '#FF7A5C', type: 'verificateur', what: 'Le vérificateur : il contrôle chaque livrable avant qu’il te soit rendu (formats, durées, fautes, respect de ta demande).' },
   renfort: { label: 'Renfort', icon: '🤖', color: '#9AA3B5', type: '', what: 'Un coup de main sur une tâche à part.' },
 };
 
-/** Les outils Claude Code de chaque métier (le chef a tous ceux de la séance). */
+const WEB = ['WebSearch', 'WebFetch'];
+const FILES = ['Read', 'Write', 'Edit', 'Glob', 'Grep'];
+
+/** Les outils Claude Code de chaque île (le chef a tous ceux de la séance). */
 export const ROLE_TOOLS: Record<Role, string[]> = {
   chef: ['Agent', 'TodoWrite', 'Skill', 'Read', 'Write', 'Edit', 'Glob', 'Grep', 'WebSearch', 'WebFetch', 'Bash'],
-  recherche: ['WebSearch', 'WebFetch', 'Read', 'Write', 'Glob', 'Grep'],
-  code: ['Skill', 'Read', 'Write', 'Edit', 'Glob', 'Grep', 'Bash', 'WebFetch'],
-  design: ['Skill', 'Read', 'Write', 'Edit', 'Glob', 'Grep', 'Bash', 'WebFetch'],
-  redaction: ['Skill', 'Read', 'Write', 'Edit', 'Glob', 'Grep'],
-  analyse: ['Skill', 'Read', 'Write', 'Edit', 'Glob', 'Grep', 'Bash'],
+  recherche: ['Skill', ...WEB, 'Read', 'Write', 'Glob', 'Grep'],
+  redaction: ['Skill', ...FILES, ...WEB],
+  montage: ['Skill', ...FILES, 'Bash', 'WebFetch'],
+  son: ['Skill', ...FILES, 'Bash', ...WEB],
+  design: ['Skill', ...FILES, 'Bash', 'WebFetch'],
+  social: ['Skill', ...FILES, ...WEB],
+  code: ['Skill', ...FILES, 'Bash', 'WebFetch'],
+  qualite: ['Skill', ...FILES, 'Bash'],
   renfort: [],
 };
 
 /**
- * Les agents Claude Code (subagent_type) et le coin du studio où ils s'installent.
- * Un coin peut accueillir deux métiers : le pixel art garde ses 5 coins, l'équipe a 8 métiers.
+ * Les agents Claude Code (subagent_type) et l'île où ils s'installent.
+ * Chaque île accueille deux métiers (le contrôle qualité est sur l'île cerveau, avec Max).
  */
 export const TYPE_ROLE: Record<string, Role> = {
-  chercheur: 'recherche',
-  developpeur: 'code', monteur: 'code',
-  designer: 'design',
-  redacteur: 'redaction', scenariste: 'redaction',
-  analyste: 'analyse', retoucheur: 'analyse',
+  chercheur: 'recherche', tendances: 'recherche',
+  scenariste: 'redaction', redacteur: 'redaction',
+  monteur: 'montage', motion: 'montage',
+  ingeson: 'son', bruiteur: 'son',
+  designer: 'design', retoucheur: 'design',
+  socialmedia: 'social', community: 'social',
+  developpeur: 'code', analyste: 'code',
+  verificateur: 'qualite',
 };
 
-/** Ce qu'affichent les deux métiers d'un même coin (le nom de l'agent Claude Code → son métier). */
+/** Ce qu'affichent les métiers (le nom de l'agent Claude Code → son métier). */
 export const TYPE_LABEL: Record<string, string> = {
-  chercheur: '🔎 Recherche', developpeur: '💻 Code', monteur: '🎬 Montage vidéo', designer: '🎨 Design',
-  redacteur: '✍️ Rédaction', scenariste: '🎞️ Scénario', analyste: '📊 Analyse', retoucheur: '📸 Retouche photo',
+  chercheur: '🔎 Recherche', tendances: '📈 Tendances',
+  scenariste: '🎞️ Scénario', redacteur: '✍️ Rédaction',
+  monteur: '🎬 Montage vidéo', motion: '✨ Motion design & effets',
+  ingeson: '🎧 Son & musique', bruiteur: '💥 Bruitages (SFX)',
+  designer: '🎨 Graphisme', retoucheur: '📸 Retouche photo',
+  socialmedia: '📱 Social media', community: '💬 Community manager',
+  developpeur: '💻 Code', analyste: '📊 Analyse',
+  verificateur: '✅ Contrôle qualité',
 };
+
+/** Les anciens coins du bureau (missions enregistrées avant les îles) → leur île. */
+const LEGACY: Record<string, Role> = { analyse: 'code' };
+
+/** Le bon métier d'un agent, même pour une mission enregistrée avant les îles. */
+export function fixRole(role: string, type?: string): Role {
+  if (type && TYPE_ROLE[type]) return TYPE_ROLE[type];
+  if (role in ROLES) return role as Role;
+  return LEGACY[role] ?? 'renfort';
+}
+
+/** La fiche d'un métier, sans jamais planter sur un nom inconnu. */
+export const roleInfo = (role: string): RoleInfo => ROLES[fixRole(role)];
 
 /** Ce que veut dire chaque outil, en français (pour la fiche des métiers). */
 export const TOOL_INFO: Record<string, string> = {
@@ -67,10 +98,13 @@ export function roleOfType(type: string): Role {
 export const NAMES: Record<Role, string[]> = {
   chef: ['Max'],
   recherche: ['Iris', 'Hugo', 'Léa', 'Malo', 'Zoé', 'Noé', 'Inès', 'Tom', 'Jade', 'Sacha', 'Lou', 'Nils'],
-  code: ['Ada', 'Agnès', 'Linus', 'Méliès', 'Grace', 'Varda', 'Alan', 'Truffaut', 'Margaret', 'Godard'],
-  design: ['Frida', 'Coco', 'Henri', 'Sonia', 'Saul', 'Paula'],
-  redaction: ['Colette', 'Victor', 'Simone', 'Jules', 'George', 'Marguerite'],
-  analyse: ['Marie', 'Nadar', 'Blaise', 'Doisneau', 'Émilie', 'Brassaï', 'Gaspard', 'Vivian'],
+  redaction: ['Colette', 'Victor', 'Simone', 'Jules', 'George', 'Marguerite', 'Agnès', 'Boris'],
+  montage: ['Méliès', 'Varda', 'Truffaut', 'Godard', 'Alice', 'Lumière', 'Chaplin', 'Kubrick'],
+  son: ['Daft', 'Nina', 'Ravel', 'Edith', 'Django', 'Björk', 'Satie', 'Lili'],
+  design: ['Frida', 'Coco', 'Henri', 'Sonia', 'Saul', 'Paula', 'Nadar', 'Vivian'],
+  social: ['Kylie', 'Enzo', 'Mila', 'Tara', 'Yanis', 'Lina', 'Rayan', 'Emma'],
+  code: ['Ada', 'Linus', 'Grace', 'Alan', 'Margaret', 'Marie', 'Blaise', 'Émilie'],
+  qualite: ['Vera', 'Oscar', 'Clara', 'Félix'],
   renfort: ['Bob', 'Lulu', 'Gaston', 'Nina', 'Momo', 'Kiki'],
 };
 

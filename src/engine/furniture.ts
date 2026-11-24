@@ -144,6 +144,7 @@ function deskSprite(role: Role, seed: number): Sprite {
       papers(g, 23, 11);
       break;
     case 'code':
+    case 'montage':
       monitorBack(g, 1, 1);
       monitorBack(g, 22, 1);
       keyboard(g, 10, 13);
@@ -158,7 +159,17 @@ function deskSprite(role: Role, seed: number): Sprite {
       papers(g, 2, 10, 4);
       mug(g, 24, 11, ROLES.redaction.color);
       break;
-    case 'analyse':
+    case 'son':
+      laptop(g, 9, 8);
+      dashboard(g, 22, 1);
+      mug(g, 2, 11, ROLES.son.color);
+      break;
+    case 'social':
+      tablet(g, 9, 11);
+      papers(g, 2, 10, 2);
+      mug(g, 24, 11, ROLES.social.color);
+      break;
+    case 'qualite':
       laptop(g, 9, 8);
       dashboard(g, 22, 1);
       calculator(g, 2, 9);

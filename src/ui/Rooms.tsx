@@ -283,7 +283,7 @@ function TeamRoom({ role }: { role?: Role }) {
   const [open, setOpen] = useState<string | null>(null);
   useEffect(() => { if (tab === 'history' && connection === 'live') send({ t: 'team_history' }); }, [tab, connection, send]);
   const working = (r: Role) => [...world.actors.values()].filter((a) => a.role === r && a.seated).length;
-  const roles: Role[] = ['chef', 'recherche', 'code', 'design', 'redaction', 'analyse'];
+  const roles: Role[] = ['chef', 'recherche', 'redaction', 'montage', 'son', 'design', 'social', 'code', 'qualite'];
   const missions = useMemo(() => {
     const m = new Map<string, { title: string; at: number; entries: NonNullable<typeof history> }>();
     for (const e of history ?? []) {
@@ -367,6 +367,10 @@ function FilesRoom() {
   );
 }
 
+/** Ce qui se regarde directement dans le navigateur (aussi sur iPhone). */
+const MEDIA = new Set(['mp4', 'mov', 'webm', 'm4a', 'mp3', 'wav', 'png', 'jpg', 'jpeg', 'webp', 'gif', 'svg', 'pdf']);
+const fileUrl = (missionId: string, file: string) => `/apercu/${encodeURIComponent(missionId)}/${file.split('/').map(encodeURIComponent).join('/')}`;
+
 export function FileActions({ files, missionId, disabled, send }: { files: ReturnType<typeof useOffice.getState>['files']; missionId: string; disabled: boolean; send: ReturnType<typeof useOffice.getState>['send'] }) {
   const agents = useOffice((s) => s.agents);
   return (
@@ -384,7 +388,9 @@ export function FileActions({ files, missionId, disabled, send }: { files: Retur
           {!disabled && readable(f.ext) && (
             <button className="btn small" onClick={() => { sfx('open'); useOffice.setState({ modal: null, viewer: { missionId, file: f.path } }); send({ t: 'read', missionId, file: f.path }); send({ t: 'versions', missionId, file: f.path }); }}>Lire</button>
           )}
-          {!disabled && <button className="btn small ghost" onClick={() => send({ t: 'open', missionId, file: f.path })}>Ouvrir</button>}
+          {!disabled && MEDIA.has(f.ext.toLowerCase()) && <a className="btn small primary" href={fileUrl(missionId, f.path)} target="_blank" rel="noreferrer">▶ Voir</a>}
+          {!disabled && <a className="btn small ghost" href={fileUrl(missionId, f.path) + '?dl=1'} title="Le télécharger sur cet appareil (téléphone, autre ordinateur)" download>⬇</a>}
+          {!disabled && <button className="btn small ghost desk-only" onClick={() => send({ t: 'open', missionId, file: f.path })}>Ouvrir</button>}
         </div>
       ))}
     </div>

@@ -45,6 +45,7 @@ function ExitFilming() {
 
 export function App() {
   const vertical = useOffice((s) => s.vertical || s.portrait);
+  const menuOpen = useOffice((s) => s.menuOpen);
   const filming = useOffice((s) => s.filming);
 
   // sur un écran en hauteur (téléphone), la mise en page verticale s'impose
@@ -98,7 +99,7 @@ export function App() {
             <AskBar />
             <FinalCard />
           </div>
-          {!vertical && !filming && <Panel />}
+          {((!vertical && !filming) || menuOpen) && <Panel />}
         </div>
         <Dialog />
       </div>
