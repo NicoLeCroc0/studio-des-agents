@@ -105,7 +105,7 @@ export function stopReplay() {
 /** Sans pont : la démo rejoue en boucle une vraie mission enregistrée. */
 async function startDemo() {
   try {
-    const res = await fetch('/demo/mission.json');
+    const res = await fetch('demo/mission.json');
     if (!res.ok) return;
     const data = (await res.json()) as { mission: MissionInfo; log: Logged[] };
     useOffice.setState({
